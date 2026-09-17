@@ -1,29 +1,40 @@
-export default function Home() {
+import Link from 'next/link'
+
+export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold">
-        Solid State Capital
-      </h1>
+    <main className="min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-xl text-center">
+        <h1 className="text-5xl font-bold mb-4">
+          Solid State Capital
+        </h1>
 
-      <p className="mt-4 text-lg text-gray-500">
-        Digital Asset Portfolio Tracking
-      </p>
+        <p className="text-gray-500 mb-8">
+          AI-assisted investment platform
+        </p>
 
-      <div className="mt-8 flex gap-4">
-        <a
-          href="/login"
-          className="px-6 py-3 rounded bg-black text-white"
-        >
-          Client Login
-        </a>
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/signup"
+            className="border px-4 py-2 rounded"
+          >
+            Create Account
+          </Link>
 
-        <a
-          href="/dashboard"
-          className="px-6 py-3 rounded border"
-        >
-          Demo Dashboard
-        </a>
+          <Link
+            href="/login"
+            className="border px-4 py-2 rounded"
+          >
+            Login
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="border px-4 py-2 rounded"
+          >
+            Dashboard
+          </Link>
+        </div>
       </div>
     </main>
-  );
+  )
 }
