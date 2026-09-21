@@ -1,31 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
-
-export default async function InvestorsPage() {
-  const supabase = await createClient()
-
-  const { data: investors } = await supabase
-    .from('investors')
-    .select('*')
-    .order('created_at', { ascending: false })
-
+export default function InvestorsPage() {
   return (
     <main className="p-8 text-white">
-      <h1 className="text-3xl font-bold mb-6">
-        Investors
-      </h1>
-
-      <div className="space-y-4">
-        {investors?.map((investor) => (
-          <div
-            key={investor.id}
-            className="border border-zinc-800 rounded-xl p-4"
-          >
-            <h2>{investor.full_name}</h2>
-            <p>{investor.email}</p>
-            <p>${investor.balance}</p>
-          </div>
-        ))}
-      </div>
+      <h1 className="text-4xl font-bold">Investor Management</h1>
+      <p className="text-zinc-400 mt-4">
+        Investor list and account management.
+      </p>
     </main>
   )
 }

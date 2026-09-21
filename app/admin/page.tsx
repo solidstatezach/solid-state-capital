@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
@@ -166,25 +167,32 @@ export default async function AdminPage() {
 
       <div className="grid md:grid-cols-4 gap-4">
 
-        <button className="bg-purple-600 hover:bg-purple-700 p-4 rounded-lg font-bold">
-          Add Investor
-        </button>
+        <Link href="/admin/investors/new">
+          <button className="bg-purple-600 hover:bg-purple-700 p-4 rounded-lg font-bold w-full">
+            Add Investor
+          </button>
+        </Link>
 
-        <button className="bg-cyan-600 hover:bg-cyan-700 p-4 rounded-lg font-bold">
-          Manage Accounts
-        </button>
+        <Link href="/admin/investors">
+          <button className="bg-cyan-600 hover:bg-cyan-700 p-4 rounded-lg font-bold w-full">
+            Manage Accounts
+          </button>
+        </Link>
 
-        <button className="bg-emerald-600 hover:bg-emerald-700 p-4 rounded-lg font-bold">
-          Trading Panel
-        </button>
+        <Link href="/admin/trading">
+          <button className="bg-emerald-600 hover:bg-emerald-700 p-4 rounded-lg font-bold w-full">
+            Trading Panel
+          </button>
+        </Link>
 
-        <button className="bg-red-600 hover:bg-red-700 p-4 rounded-lg font-bold">
-          System Admin
-        </button>
+        <Link href="/admin/system">
+          <button className="bg-red-600 hover:bg-red-700 p-4 rounded-lg font-bold w-full">
+            System Admin
+          </button>
+        </Link>
 
       </div>
 
     </main>
   )
-}	
-
+}
