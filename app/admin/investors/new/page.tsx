@@ -29,7 +29,6 @@ export default function NewInvestorPage() {
           email,
           balance: Number(balance),
           status,
-          user_id: user?.id ?? null,
         },
       ])
 
