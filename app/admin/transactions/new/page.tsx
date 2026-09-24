@@ -26,10 +26,10 @@ export default function NewTransactionPage() {
     loadInvestors()
   }, [])
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    const transactionAmount = Number(amount)
 
     const { error } = await supabase
       .from('investor_transactions')
@@ -37,7 +37,7 @@ export default function NewTransactionPage() {
         {
           investor_id: investorId,
           transaction_type: type,
-          amount: Number(amount),
+          amount: transactionAmount,
           notes,
         },
       ])
@@ -47,30 +47,50 @@ export default function NewTransactionPage() {
       return
     }
 
+    const { data: investor } = await supabase
+      .from('investors')
+      .select('*')
+      .eq('id', investorId)
+      .single()
+
+    if (investor) {
+      let newBalance = Number(investor.balance || 0)
+
+      if (type === 'deposit' || type === 'profit') {
+        newBalance += transactionAmount
+      }
+
+      if (type === 'withdrawal' || type === 'loss') {
+        newBalance -= transactionAmount
+      }
+
+      await supabase
+        .from('investors')
+        .update({
+          balance: newBalance,
+        })
+        .eq('id', investorId)
+    }
+
     setMessage('Transaction saved successfully')
-    setInvestorId('')
     setAmount('')
     setNotes('')
-    setType('deposit')
   }
 
   return (
-    <main className="p-8 text-white max-w-2xl">
-      <h1 className="text-4xl font-bold mb-8">
+    <main className="p-8 text-white">
+      <h1 className="text-4xl font-bold mb-6">
         New Transaction
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4"
+        className="max-w-xl space-y-4"
       >
         <select
           value={investorId}
-          onChange={(e) =>
-            setInvestorId(e.target.value)
-          }
+          onChange={(e) => setInvestorId(e.target.value)}
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
-          required
         >
           <option value="">
             Select Investor
@@ -88,56 +108,39 @@ export default function NewTransactionPage() {
 
         <select
           value={type}
-          onChange={(e) =>
-            setType(e.target.value)
-          }
+          onChange={(e) => setType(e.target.value)}
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         >
-          <option value="deposit">
-            Deposit
-          </option>
-          <option value="withdrawal">
-            Withdrawal
-          </option>
-          <option value="profit">
-            Profit
-          </option>
-          <option value="loss">
-            Loss
-          </option>
+          <option value="deposit">Deposit</option>
+          <option value="withdrawal">Withdrawal</option>
+          <option value="profit">Profit</option>
+          <option value="loss">Loss</option>
         </select>
 
         <input
           type="number"
-          step="0.01"
           value={amount}
-          onChange={(e) =>
-            setAmount(e.target.value)
-          }
+          onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount"
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
-          required
         />
 
         <textarea
           value={notes}
-          onChange={(e) =>
-            setNotes(e.target.value)
-          }
+          onChange={(e) => setNotes(e.target.value)}
           placeholder="Notes"
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
-          rows={4}
         />
 
         <button
           type="submit"
-          className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-lg font-bold"
+          className="bg-green-600 px-6 py-3 rounded-lg font-bold"
         >
           Save Transaction
         </button>
 
         {message && (
-          <p className="text-cyan-400">
+          <p className="text-green-400">
             {message}
           </p>
         )}
