@@ -1,4 +1,3 @@
-cat > app/admin/investors/page.tsx <<'EOF'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
@@ -64,4 +63,3 @@ export default async function InvestorsPage() {
     </main>
   )
 }
-EOF
