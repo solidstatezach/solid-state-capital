@@ -8,9 +8,8 @@ export default function NewTransactionPage() {
 
   const [investors, setInvestors] = useState<any[]>([])
   const [investorId, setInvestorId] = useState('')
-  const [type, setType] = useState('deposit')
+  const [transactionType, setTransactionType] = useState('deposit')
   const [amount, setAmount] = useState('')
-  const [notes, setNotes] = useState('')
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -29,16 +28,17 @@ export default function NewTransactionPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    const transactionAmount = Number(amount)
+    const amountUsd = Number(amount)
 
     const { error } = await supabase
       .from('transactions')
       .insert([
         {
-          investor_id: investorId,
-          type,
-          amount: transactionAmount,
-          notes,
+          transaction_type: transactionType,
+          amount_usd: amountUsd,
+          asset_symbol: 'USD',
+          quantity: 1,
+          price: amountUsd,
         },
       ])
 
@@ -54,27 +54,30 @@ export default function NewTransactionPage() {
       .single()
 
     if (investor) {
-      let newBalance = Number(investor.balance)
+      let balance = Number(investor.balance || 0)
 
-      if (type === 'deposit' || type === 'profit') {
-        newBalance += transactionAmount
+      if (
+        transactionType === 'deposit' ||
+        transactionType === 'profit'
+      ) {
+        balance += amountUsd
       }
 
-      if (type === 'withdrawal' || type === 'loss') {
-        newBalance -= transactionAmount
+      if (
+        transactionType === 'withdrawal' ||
+        transactionType === 'loss'
+      ) {
+        balance -= amountUsd
       }
 
       await supabase
         .from('investors')
-        .update({
-          balance: newBalance,
-        })
+        .update({ balance })
         .eq('id', investorId)
     }
 
-    setMessage('Transaction recorded')
     setAmount('')
-    setNotes('')
+    setMessage('Transaction recorded')
   }
 
   return (
@@ -85,14 +88,16 @@ export default function NewTransactionPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-xl space-y-4"
+        className="space-y-4 max-w-xl"
       >
         <select
           value={investorId}
           onChange={(e) => setInvestorId(e.target.value)}
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         >
-          <option value="">Select Investor</option>
+          <option value="">
+            Select Investor
+          </option>
 
           {investors.map((investor) => (
             <option
@@ -105,28 +110,31 @@ export default function NewTransactionPage() {
         </select>
 
         <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
+          value={transactionType}
+          onChange={(e) =>
+            setTransactionType(e.target.value)
+          }
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         >
-          <option value="deposit">Deposit</option>
-          <option value="withdrawal">Withdrawal</option>
-          <option value="profit">Profit</option>
-          <option value="loss">Loss</option>
+          <option value="deposit">
+            Deposit
+          </option>
+          <option value="withdrawal">
+            Withdrawal
+          </option>
+          <option value="profit">
+            Profit
+          </option>
+          <option value="loss">
+            Loss
+          </option>
         </select>
 
         <input
           type="number"
+          placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
-        />
-
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notes"
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         />
 
