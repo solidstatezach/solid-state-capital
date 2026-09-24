@@ -1,3 +1,5 @@
+cat > app/admin/investors/page.tsx <<'EOF'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function InvestorsPage() {
@@ -31,15 +33,28 @@ export default async function InvestorsPage() {
             key={investor.id}
             className="p-4 rounded-lg bg-zinc-900 border border-zinc-800"
           >
-            <h2 className="font-bold text-lg">
+            <Link
+              href={`/admin/investors/${investor.id}`}
+              className="font-bold text-lg text-cyan-400"
+            >
               {investor.full_name}
-            </h2>
+            </Link>
 
             <p>{investor.email}</p>
 
             <p>
               Balance: $
               {Number(investor.balance).toLocaleString()}
+            </p>
+
+            <p>
+              Invested: $
+              {Number(investor.total_invested || 0).toLocaleString()}
+            </p>
+
+            <p>
+              Profit: $
+              {Number(investor.total_profit || 0).toLocaleString()}
             </p>
 
             <p>Status: {investor.status}</p>
@@ -49,3 +64,4 @@ export default async function InvestorsPage() {
     </main>
   )
 }
+EOF
