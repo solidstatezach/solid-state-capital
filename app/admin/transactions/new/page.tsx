@@ -8,8 +8,9 @@ export default function NewTransactionPage() {
 
   const [investors, setInvestors] = useState<any[]>([])
   const [investorId, setInvestorId] = useState('')
-  const [transactionType, setTransactionType] = useState('deposit')
+  const [type, setType] = useState('deposit')
   const [amount, setAmount] = useState('')
+  const [notes, setNotes] = useState('')
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -25,20 +26,19 @@ export default function NewTransactionPage() {
     loadInvestors()
   }, [])
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
     e.preventDefault()
 
-    const amountUsd = Number(amount)
-
     const { error } = await supabase
-      .from('transactions')
+      .from('investor_transactions')
       .insert([
         {
-          transaction_type: transactionType,
-          amount_usd: amountUsd,
-          asset_symbol: 'USD',
-          quantity: 1,
-          price: amountUsd,
+          investor_id: investorId,
+          type,
+          amount: Number(amount),
+          notes,
         },
       ])
 
@@ -47,52 +47,26 @@ export default function NewTransactionPage() {
       return
     }
 
-    const { data: investor } = await supabase
-      .from('investors')
-      .select('*')
-      .eq('id', investorId)
-      .single()
-
-    if (investor) {
-      let balance = Number(investor.balance || 0)
-
-      if (
-        transactionType === 'deposit' ||
-        transactionType === 'profit'
-      ) {
-        balance += amountUsd
-      }
-
-      if (
-        transactionType === 'withdrawal' ||
-        transactionType === 'loss'
-      ) {
-        balance -= amountUsd
-      }
-
-      await supabase
-        .from('investors')
-        .update({ balance })
-        .eq('id', investorId)
-    }
-
+    setMessage('Transaction saved')
     setAmount('')
-    setMessage('Transaction recorded')
+    setNotes('')
   }
 
   return (
-    <main className="p-8 text-white">
-      <h1 className="text-4xl font-bold mb-6">
+    <main className="p-8 text-white max-w-2xl">
+      <h1 className="text-4xl font-bold mb-8">
         New Transaction
       </h1>
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 max-w-xl"
+        className="space-y-4"
       >
         <select
           value={investorId}
-          onChange={(e) => setInvestorId(e.target.value)}
+          onChange={(e) =>
+            setInvestorId(e.target.value)
+          }
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         >
           <option value="">
@@ -110,21 +84,24 @@ export default function NewTransactionPage() {
         </select>
 
         <select
-          value={transactionType}
+          value={type}
           onChange={(e) =>
-            setTransactionType(e.target.value)
+            setType(e.target.value)
           }
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         >
           <option value="deposit">
             Deposit
           </option>
+
           <option value="withdrawal">
             Withdrawal
           </option>
+
           <option value="profit">
             Profit
           </option>
+
           <option value="loss">
             Loss
           </option>
@@ -134,7 +111,18 @@ export default function NewTransactionPage() {
           type="number"
           placeholder="Amount"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) =>
+            setAmount(e.target.value)
+          }
+          className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
+        />
+
+        <textarea
+          placeholder="Notes"
+          value={notes}
+          onChange={(e) =>
+            setNotes(e.target.value)
+          }
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
         />
 
