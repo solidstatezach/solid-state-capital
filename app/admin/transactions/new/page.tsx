@@ -36,7 +36,7 @@ export default function NewTransactionPage() {
       .insert([
         {
           investor_id: investorId,
-          type,
+          transaction_type: type,
           amount: Number(amount),
           notes,
         },
@@ -47,9 +47,11 @@ export default function NewTransactionPage() {
       return
     }
 
-    setMessage('Transaction saved')
+    setMessage('Transaction saved successfully')
+    setInvestorId('')
     setAmount('')
     setNotes('')
+    setType('deposit')
   }
 
   return (
@@ -68,6 +70,7 @@ export default function NewTransactionPage() {
             setInvestorId(e.target.value)
           }
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
+          required
         >
           <option value="">
             Select Investor
@@ -93,15 +96,12 @@ export default function NewTransactionPage() {
           <option value="deposit">
             Deposit
           </option>
-
           <option value="withdrawal">
             Withdrawal
           </option>
-
           <option value="profit">
             Profit
           </option>
-
           <option value="loss">
             Loss
           </option>
@@ -109,26 +109,29 @@ export default function NewTransactionPage() {
 
         <input
           type="number"
-          placeholder="Amount"
+          step="0.01"
           value={amount}
           onChange={(e) =>
             setAmount(e.target.value)
           }
+          placeholder="Amount"
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
+          required
         />
 
         <textarea
-          placeholder="Notes"
           value={notes}
           onChange={(e) =>
             setNotes(e.target.value)
           }
+          placeholder="Notes"
           className="w-full p-3 rounded bg-zinc-900 border border-zinc-700"
+          rows={4}
         />
 
         <button
           type="submit"
-          className="bg-green-600 px-6 py-3 rounded-lg font-bold"
+          className="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-lg font-bold"
         >
           Save Transaction
         </button>
