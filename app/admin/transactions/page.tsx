@@ -1,12 +1,27 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export default async function TransactionsPage() {
-  const supabase = await createClient()
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
-  const { data: transactions } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('created_at', { ascending: false })
+export default function TransactionsPage() {
+  const supabase = createClient()
+
+  const [transactions, setTransactions] = useState<any[]>([])
+
+  useEffect(() => {
+    loadTransactions()
+  }, [])
+
+  async function loadTransactions() {
+    const { data, error } = await supabase
+      .from('investor_transactions')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (!error) {
+      setTransactions(data || [])
+    }
+  }
 
   return (
     <main className="p-8 text-white">
@@ -14,34 +29,44 @@ export default async function TransactionsPage() {
         Transaction Ledger
       </h1>
 
-      <div className="space-y-4">
-        {transactions?.map((tx) => (
-          <div
-            key={tx.id}
-            className="p-4 rounded-lg bg-zinc-900 border border-zinc-800"
-          >
-            <p>
-              <strong>Type:</strong> {tx.type}
-            </p>
+      <div className="overflow-x-auto">
+        <table className="w-full border border-zinc-700">
+          <thead>
+            <tr className="bg-zinc-900">
+              <th className="p-3 text-left">Date</th>
+              <th className="p-3 text-left">Type</th>
+              <th className="p-3 text-left">Amount</th>
+              <th className="p-3 text-left">Notes</th>
+            </tr>
+          </thead>
 
-            <p>
-              <strong>Amount:</strong> $
-              {Number(tx.amount).toLocaleString()}
-            </p>
+          <tbody>
+            {transactions.map((tx) => (
+              <tr
+                key={tx.id}
+                className="border-t border-zinc-800"
+              >
+                <td className="p-3">
+                  {new Date(
+                    tx.created_at
+                  ).toLocaleString()}
+                </td>
 
-            <p>
-              <strong>Investor ID:</strong> {tx.investor_id}
-            </p>
+                <td className="p-3 capitalize">
+                  {tx.transaction_type}
+                </td>
 
-            <p>
-              <strong>Notes:</strong> {tx.notes}
-            </p>
+                <td className="p-3">
+                  ${Number(tx.amount).toFixed(2)}
+                </td>
 
-            <p>
-              <strong>Date:</strong> {tx.created_at}
-            </p>
-          </div>
-        ))}
+                <td className="p-3">
+                  {tx.notes}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </main>
   )
