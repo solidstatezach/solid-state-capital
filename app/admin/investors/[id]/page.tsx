@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import InvestorSummary from "@/components/admin/InvestorSummary"
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -88,6 +89,7 @@ export default function InvestorDetailPage() {
         </div>
       </div>
 
+      <InvestorSummary transactions={transactions} />
       <h2 className="text-2xl font-bold mb-4">
         Transaction History ({transactions.length})
       </h2>
