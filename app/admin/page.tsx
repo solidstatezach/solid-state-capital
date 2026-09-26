@@ -1,6 +1,7 @@
 'use client'
 
 import AUMChart from '@/components/admin/AUMChart'
+import AllocationChart from '@/components/admin/AllocationChart'
 
 export default function AdminPage() {
   return (
@@ -76,26 +77,10 @@ export default function AdminPage() {
 
         <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
           <h2 className="text-xl font-bold mb-4">
-            Portfolio Snapshot
+            Portfolio Allocation
           </h2>
 
-          <div className="space-y-3">
-            <div className="bg-zinc-800 p-4 rounded-lg">
-              BTC: 45%
-            </div>
-
-            <div className="bg-zinc-800 p-4 rounded-lg">
-              ETH: 30%
-            </div>
-
-            <div className="bg-zinc-800 p-4 rounded-lg">
-              SOL: 15%
-            </div>
-
-            <div className="bg-zinc-800 p-4 rounded-lg">
-              Cash: 10%
-            </div>
-          </div>
+          <AllocationChart />
         </div>
       </div>
     </main>
