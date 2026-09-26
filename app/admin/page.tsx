@@ -1,113 +1,126 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
-export default function AdminPage() {
-  const supabase = createClient()
+const stats = [
+  {
+    title: 'Assets Under Management',
+    value: '$1,250,000',
+  },
+  {
+    title: 'Active Investors',
+    value: '47',
+  },
+  {
+    title: 'Monthly Profit',
+    value: '$83,240',
+  },
+  {
+    title: 'Transactions',
+    value: '392',
+  },
+]
 
-  const [stats, setStats] = useState({
-    investors: 0,
-    capital: 0,
-    profit: 0,
-    transactions: 0,
-  })
+const actions = [
+  {
+    title: 'Add Investor',
+    href: '/admin/investors/new',
+  },
+  {
+    title: 'Add Transaction',
+    href: '/admin/transactions/new',
+  },
+  {
+    title: 'View Investors',
+    href: '/admin/investors',
+  },
+  {
+    title: 'Trading Desk',
+    href: '/admin/trading',
+  },
+]
 
-  useEffect(() => {
-    loadStats()
-  }, [])
-
-  async function loadStats() {
-    const { data: investors } = await supabase
-      .from('investors')
-      .select('*')
-
-    const { count } = await supabase
-      .from('investor_transactions')
-      .select('*', { count: 'exact', head: true })
-
-    const totalCapital =
-      investors?.reduce(
-        (sum, investor) =>
-          sum + Number(investor.balance || 0),
-        0
-      ) || 0
-
-    const totalProfit =
-      investors?.reduce(
-        (sum, investor) =>
-          sum + Number(investor.total_profit || 0),
-        0
-      ) || 0
-
-    setStats({
-      investors: investors?.length || 0,
-      capital: totalCapital,
-      profit: totalProfit,
-      transactions: count || 0,
-    })
-  }
-
+export default function AdminDashboard() {
   return (
-    <main className="p-8 text-white">
-      <h1 className="text-4xl font-bold mb-8">
-        Admin Dashboard
-      </h1>
+    <main className="space-y-8">
 
-      <div className="grid gap-4 mb-8">
-        <div className="bg-zinc-900 p-6 rounded-xl">
-          <p className="text-zinc-400">Total Investors</p>
-          <p className="text-3xl font-bold">
-            {stats.investors}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-4xl font-bold text-cyan-400">
+          Solid State Capital
+        </h1>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
-          <p className="text-zinc-400">Total Capital</p>
-          <p className="text-3xl font-bold">
-            ${stats.capital.toFixed(2)}
-          </p>
-        </div>
+        <p className="text-zinc-400 mt-2">
+          Private Investor Management Platform
+        </p>
+      </div>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
-          <p className="text-zinc-400">Total Profit</p>
-          <p className="text-3xl font-bold text-cyan-400">
-            ${stats.profit.toFixed(2)}
-          </p>
-        </div>
+      <div className="grid md:grid-cols-4 gap-4">
+        {stats.map((item) => (
+          <div
+            key={item.title}
+            className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
+          >
+            <p className="text-zinc-400 text-sm">
+              {item.title}
+            </p>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
-          <p className="text-zinc-400">
-            Total Transactions
-          </p>
-          <p className="text-3xl font-bold">
-            {stats.transactions}
-          </p>
+            <h2 className="text-3xl font-bold mt-2">
+              {item.value}
+            </h2>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-bold mb-4">
+          Quick Actions
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-4">
+          {actions.map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="rounded-xl bg-cyan-600 hover:bg-cyan-500 p-5 font-bold text-center transition"
+            >
+              {action.title}
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div className="space-y-4">
-        <Link
-          href="/admin/investors"
-          className="block bg-zinc-900 p-4 rounded-xl"
-        >
-          Investors
-        </Link>
+      <div className="grid lg:grid-cols-2 gap-6">
 
-        <Link
-          href="/admin/transactions"
-          className="block bg-zinc-900 p-4 rounded-xl"
-        >
-          Transaction Ledger
-        </Link>
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <h2 className="text-xl font-bold mb-4">
+            Recent Activity
+          </h2>
 
-        <Link
-          href="/admin/transactions/new"
-          className="block bg-green-700 p-4 rounded-xl font-bold"
-        >
-          New Transaction
-        </Link>
+          <div className="space-y-3">
+            <div className="bg-zinc-800 p-4 rounded-lg">
+              Deposit +$10,000
+            </div>
+
+            <div className="bg-zinc-800 p-4 rounded-lg">
+              New Investor Added
+            </div>
+
+            <div className="bg-zinc-800 p-4 rounded-lg">
+              Withdrawal -$2,500
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
+          <h2 className="text-xl font-bold mb-4">
+            Portfolio Snapshot
+          </h2>
+
+          <div className="h-64 flex items-center justify-center text-zinc-500">
+            Chart Coming Soon
+          </div>
+        </div>
+
       </div>
     </main>
   )
