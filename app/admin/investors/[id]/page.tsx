@@ -1,139 +1,175 @@
-'use client'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
-import { useEffect, useState } from 'react'
-import InvestorSummary from "@/components/admin/InvestorSummary"
-import { useParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+export default async function InvestorPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
 
-export default function InvestorDetailPage() {
-  const supabase = createClient()
-  const params = useParams()
+  const supabase = await createClient()
 
-  const [investor, setInvestor] = useState<any>(null)
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: investor } = await supabase
+    .from('investors')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  useEffect(() => {
-    if (params?.id) {
-      loadInvestor()
-    }
-  }, [params])
-
-  async function loadInvestor() {
-    const investorId = params.id as string
-
-    const { data: investorData } = await supabase
-      .from('investors')
-      .select('*')
-      .eq('id', investorId)
-      .single()
-
-    setInvestor(investorData)
-
-    const { data: transactionData, error } = await supabase
-      .from('investor_transactions')
-      .select('*')
-      .eq('investor_id', investorId)
-      .order('created_at', { ascending: false })
-
-    console.log('Investor:', investorId)
-    console.log('Transactions:', transactionData)
-    console.log('Error:', error)
-
-    setTransactions(transactionData || [])
-    setLoading(false)
-  }
-
-  if (loading) {
-    return (
-      <main className="p-8 text-white">
-        Loading...
-      </main>
-    )
-  }
+  const { data: transactions } = await supabase
+    .from('investor_transactions')
+    .select('*')
+    .eq('investor_id', id)
+    .order('created_at', { ascending: false })
 
   if (!investor) {
-    return (
-      <main className="p-8 text-white">
-        Investor not found
-      </main>
-    )
+    return <div>Investor not found</div>
   }
 
+  const totalDeposits =
+    transactions
+      ?.filter(
+        (t) => t.transaction_type === 'deposit'
+      )
+      .reduce(
+        (sum, t) => sum + Number(t.amount),
+        0
+      ) || 0
+
+  const totalWithdrawals =
+    transactions
+      ?.filter(
+        (t) => t.transaction_type === 'withdrawal'
+      )
+      .reduce(
+        (sum, t) => sum + Number(t.amount),
+        0
+      ) || 0
+
   return (
-    <main className="p-8 text-white">
-      <h1 className="text-4xl font-bold mb-8">
-        {investor.full_name}
-      </h1>
+    <main className="space-y-8">
+      <div>
+        <h1 className="text-4xl font-bold text-cyan-400">
+          {investor.full_name}
+        </h1>
 
-      <div className="grid gap-4 mb-8">
-        <div className="bg-zinc-900 p-4 rounded-xl">
-          <p className="text-zinc-400">Current Balance</p>
-          <p className="text-3xl font-bold">
-            ${Number(investor.balance || 0).toFixed(2)}
-          </p>
-        </div>
+        <p className="text-zinc-400">
+          Investor Profile
+        </p>
 
-        <div className="bg-zinc-900 p-4 rounded-xl">
-          <p className="text-zinc-400">Total Invested</p>
-          <p className="text-3xl font-bold">
-            ${Number(investor.total_invested || 0).toFixed(2)}
-          </p>
-        </div>
+        <div className="flex gap-3 mt-4">
+          <Link
+            href="/admin/deposits/new"
+            className="bg-green-600 px-4 py-2 rounded-lg"
+          >
+            New Deposit
+          </Link>
 
-        <div className="bg-zinc-900 p-4 rounded-xl">
-          <p className="text-zinc-400">Total Profit</p>
-          <p className="text-3xl font-bold">
-            ${Number(investor.total_profit || 0).toFixed(2)}
-          </p>
+          <Link
+            href="/admin/withdrawals/new"
+            className="bg-red-600 px-4 py-2 rounded-lg"
+          >
+            New Withdrawal
+          </Link>
         </div>
       </div>
 
-      <InvestorSummary transactions={transactions} />
-      <h2 className="text-2xl font-bold mb-4">
-        Transaction History ({transactions.length})
-      </h2>
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <div className="text-zinc-400">
+            Balance
+          </div>
 
-      {transactions.length === 0 ? (
-        <div className="bg-zinc-900 p-4 rounded-xl">
-          No transactions found
+          <div className="text-3xl font-bold mt-2">
+            ${Number(investor.balance).toLocaleString()}
+          </div>
         </div>
-      ) : (
+
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <div className="text-zinc-400">
+            Total Invested
+          </div>
+
+          <div className="text-3xl font-bold mt-2">
+            ${Number(
+              investor.total_invested
+            ).toLocaleString()}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <div className="text-zinc-400">
+            Total Profit
+          </div>
+
+          <div className="text-3xl font-bold mt-2">
+            ${Number(
+              investor.total_profit
+            ).toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <div className="text-zinc-400">
+            Lifetime Deposits
+          </div>
+
+          <div className="text-3xl font-bold mt-2">
+            ${totalDeposits.toLocaleString()}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <div className="text-zinc-400">
+            Lifetime Withdrawals
+          </div>
+
+          <div className="text-3xl font-bold mt-2">
+            ${totalWithdrawals.toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6">
+        <h2 className="text-2xl font-bold mb-6">
+          Transaction History
+        </h2>
+
         <div className="space-y-3">
-          {transactions.map((tx) => (
+          {transactions?.map((tx) => (
             <div
               key={tx.id}
-              className="bg-zinc-900 p-4 rounded-xl"
+              className="flex justify-between border-b border-zinc-800 pb-3"
             >
-              <div className="flex justify-between">
-                <span
-                  className={
-                    tx.transaction_type === 'deposit'
-                      ? 'text-green-400 font-bold capitalize'
-                      : 'text-red-400 font-bold capitalize'
-                  }
-                >
+              <div>
+                <div className="font-medium capitalize">
                   {tx.transaction_type}
-                </span>
+                </div>
 
-                <span className="font-bold">
-                  ${Number(tx.amount).toFixed(2)}
-                </span>
+                <div className="text-sm text-zinc-500">
+                  {tx.notes || 'No notes'}
+                </div>
               </div>
 
-              {tx.notes && (
-                <p className="text-zinc-400 text-sm mt-2">
-                  {tx.notes}
-                </p>
-              )}
+              <div className="text-right">
+                <div className="font-bold">
+                  ${Number(
+                    tx.amount
+                  ).toLocaleString()}
+                </div>
 
-              <p className="text-zinc-500 text-xs mt-1">
-                {new Date(tx.created_at).toLocaleString()}
-              </p>
+                <div className="text-xs text-zinc-500">
+                  {new Date(
+                    tx.created_at
+                  ).toLocaleDateString()}
+                </div>
+              </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
     </main>
   )
 }
