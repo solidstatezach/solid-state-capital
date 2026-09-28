@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import AUMChart from '@/components/admin/AUMChart'
+import AllocationChart from '@/components/admin/AllocationChart'
 
 export default async function InvestorPage({
   params,
@@ -28,23 +30,13 @@ export default async function InvestorPage({
 
   const totalDeposits =
     transactions
-      ?.filter(
-        (t) => t.transaction_type === 'deposit'
-      )
-      .reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      ) || 0
+      ?.filter((t) => t.transaction_type === 'deposit')
+      .reduce((sum, t) => sum + Number(t.amount), 0) || 0
 
   const totalWithdrawals =
     transactions
-      ?.filter(
-        (t) => t.transaction_type === 'withdrawal'
-      )
-      .reduce(
-        (sum, t) => sum + Number(t.amount),
-        0
-      ) || 0
+      ?.filter((t) => t.transaction_type === 'withdrawal')
+      .reduce((sum, t) => sum + Number(t.amount), 0) || 0
 
   return (
     <main className="space-y-8">
@@ -57,7 +49,7 @@ export default async function InvestorPage({
           Investor Profile
         </p>
 
-        <div className="flex gap-3 mt-4">
+        <div className="flex gap-3 mt-4 flex-wrap">
           <Link
             href="/admin/deposits/new"
             className="bg-green-600 px-4 py-2 rounded-lg"
@@ -71,14 +63,20 @@ export default async function InvestorPage({
           >
             New Withdrawal
           </Link>
+
+          <button className="bg-cyan-600 px-4 py-2 rounded-lg">
+            Add Profit
+          </button>
+
+          <button className="bg-yellow-600 px-4 py-2 rounded-lg">
+            Edit Investor
+          </button>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">
-            Balance
-          </div>
+          <div className="text-zinc-400">Balance</div>
 
           <div className="text-3xl font-bold mt-2">
             ${Number(investor.balance).toLocaleString()}
@@ -86,9 +84,7 @@ export default async function InvestorPage({
         </div>
 
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">
-            Total Invested
-          </div>
+          <div className="text-zinc-400">Total Invested</div>
 
           <div className="text-3xl font-bold mt-2">
             ${Number(
@@ -98,9 +94,7 @@ export default async function InvestorPage({
         </div>
 
         <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">
-            Total Profit
-          </div>
+          <div className="text-zinc-400">Total Profit</div>
 
           <div className="text-3xl font-bold mt-2">
             ${Number(
@@ -132,6 +126,24 @@ export default async function InvestorPage({
         </div>
       </div>
 
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold mb-4">
+            AUM Growth
+          </h2>
+
+          <AUMChart />
+        </div>
+
+        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold mb-4">
+            Portfolio Allocation
+          </h2>
+
+          <AllocationChart />
+        </div>
+      </div>
+
       <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6">
         <h2 className="text-2xl font-bold mb-6">
           Transaction History
@@ -155,9 +167,7 @@ export default async function InvestorPage({
 
               <div className="text-right">
                 <div className="font-bold">
-                  ${Number(
-                    tx.amount
-                  ).toLocaleString()}
+                  ${Number(tx.amount).toLocaleString()}
                 </div>
 
                 <div className="text-xs text-zinc-500">
