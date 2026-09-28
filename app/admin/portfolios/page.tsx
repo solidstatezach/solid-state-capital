@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+import AUMChart from '@/components/admin/AUMChart'
+import AllocationChart from '@/components/admin/AllocationChart'
+
 export default function PortfolioPage() {
   const supabase = createClient()
 
@@ -65,17 +68,17 @@ export default function PortfolioPage() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
           <p className="text-zinc-400">
             Portfolio Value
           </p>
 
           <p className="text-3xl font-bold">
-            ${portfolioValue.toFixed(2)}
+            ${portfolioValue.toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
           <p className="text-zinc-400">
             Investors
           </p>
@@ -85,24 +88,44 @@ export default function PortfolioPage() {
           </p>
         </div>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
           <p className="text-zinc-400">
             Total Deposits
           </p>
 
           <p className="text-3xl font-bold">
-            ${totalDeposits.toFixed(2)}
+            ${totalDeposits.toLocaleString()}
           </p>
         </div>
 
-        <div className="bg-zinc-900 p-6 rounded-xl">
+        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
           <p className="text-zinc-400">
             Total Profits
           </p>
 
           <p className="text-3xl font-bold">
-            ${totalProfits.toFixed(2)}
+            ${totalProfits.toLocaleString()}
           </p>
+        </div>
+
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6 mt-8">
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">
+            AUM Growth
+          </h2>
+
+          <AUMChart />
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <h2 className="text-2xl font-bold mb-4">
+            Portfolio Allocation
+          </h2>
+
+          <AllocationChart />
         </div>
 
       </div>
