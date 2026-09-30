@@ -78,7 +78,16 @@ export default async function DashboardPage() {
             Allocation
           </h2>
 
-          <AllocationChart />
+          <AllocationChart
+            data={[
+              {
+                name: 'BTC',
+                value: Number(
+                  investor?.balance || 0
+                ),
+              },
+            ]}
+          />
         </div>
 
       </div>

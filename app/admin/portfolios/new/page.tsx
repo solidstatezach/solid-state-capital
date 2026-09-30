@@ -8,18 +8,17 @@ type Investor = {
   email: string
 }
 
-export default function NewWithdrawalPage() {
+export default function NewPositionPage() {
   const [investors, setInvestors] = useState<Investor[]>([])
   const [investorId, setInvestorId] = useState('')
-  const [amount, setAmount] = useState('')
+  const [asset, setAsset] = useState('BTC')
+  const [quantity, setQuantity] = useState('')
+  const [averageCost, setAverageCost] = useState('')
   const [status, setStatus] = useState('')
 
   useEffect(() => {
-    async function loadInvestors() {
+    async function load() {
       const res = await fetch('/api/admin/investors')
-
-      if (!res.ok) return
-
       const data = await res.json()
 
       setInvestors(data)
@@ -29,47 +28,45 @@ export default function NewWithdrawalPage() {
       }
     }
 
-    loadInvestors()
+    load()
   }, [])
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault()
 
-    setStatus('Saving...')
-
     const res = await fetch(
-      '/api/admin/withdrawals',
+      '/api/admin/portfolios',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          investorId,
-          amount: Number(amount),
+          investor_id: investorId,
+          asset,
+          quantity: Number(quantity),
+          average_cost: Number(averageCost),
         }),
       }
     )
 
     if (res.ok) {
-      setStatus('Withdrawal recorded')
-      setAmount('')
+      setStatus('Position Added')
+      setQuantity('')
+      setAverageCost('')
     } else {
-      const error = await res.json()
-      setStatus(error.error || 'Failed')
+      setStatus('Failed')
     }
   }
 
   return (
     <main className="max-w-xl">
       <h1 className="text-3xl font-bold mb-6">
-        Record Withdrawal
+        Add Position
       </h1>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={submit}
         className="space-y-4 bg-zinc-900 p-6 rounded-xl"
       >
         <select
@@ -79,31 +76,49 @@ export default function NewWithdrawalPage() {
           }
           className="w-full p-3 rounded bg-zinc-800"
         >
-          {investors.map((investor) => (
+          {investors.map((i) => (
             <option
-              key={investor.id}
-              value={investor.id}
+              key={i.id}
+              value={i.id}
             >
-              {investor.name} ({investor.email})
+              {i.name}
             </option>
           ))}
         </select>
 
         <input
-          type="number"
-          value={amount}
+          value={asset}
           onChange={(e) =>
-            setAmount(e.target.value)
+            setAsset(e.target.value)
           }
-          placeholder="Amount"
+          placeholder="BTC"
+          className="w-full p-3 rounded bg-zinc-800"
+        />
+
+        <input
+          type="number"
+          value={quantity}
+          onChange={(e) =>
+            setQuantity(e.target.value)
+          }
+          placeholder="Quantity"
+          className="w-full p-3 rounded bg-zinc-800"
+        />
+
+        <input
+          type="number"
+          value={averageCost}
+          onChange={(e) =>
+            setAverageCost(e.target.value)
+          }
+          placeholder="Average Cost"
           className="w-full p-3 rounded bg-zinc-800"
         />
 
         <button
-          type="submit"
-          className="bg-red-500 px-4 py-2 rounded font-bold"
+          className="bg-cyan-500 text-black px-4 py-2 rounded font-bold"
         >
-          Record Withdrawal
+          Add Position
         </button>
 
         <div>{status}</div>

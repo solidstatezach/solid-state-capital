@@ -1,133 +1,70 @@
-'use client'
+import { createClient } from '@/lib/supabase/server'
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+export default async function PortfoliosPage() {
+  const supabase = await createClient()
 
-import AUMChart from '@/components/admin/AUMChart'
-import AllocationChart from '@/components/admin/AllocationChart'
-
-export default function PortfolioPage() {
-  const supabase = createClient()
-
-  const [portfolioValue, setPortfolioValue] = useState(0)
-  const [investorCount, setInvestorCount] = useState(0)
-  const [totalDeposits, setTotalDeposits] = useState(0)
-  const [totalProfits, setTotalProfits] = useState(0)
-
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  async function loadData() {
-    const { data: investors } = await supabase
-      .from('investors')
-      .select('*')
-
-    const { data: transactions } = await supabase
-      .from('investor_transactions')
-      .select('*')
-
-    const portfolio =
-      investors?.reduce(
-        (sum, investor) =>
-          sum + Number(investor.balance || 0),
-        0
-      ) || 0
-
-    const deposits =
-      transactions
-        ?.filter(
-          (t) => t.transaction_type === 'deposit'
-        )
-        .reduce(
-          (sum, t) => sum + Number(t.amount),
-          0
-        ) || 0
-
-    const profits =
-      transactions
-        ?.filter(
-          (t) => t.transaction_type === 'profit'
-        )
-        .reduce(
-          (sum, t) => sum + Number(t.amount),
-          0
-        ) || 0
-
-    setPortfolioValue(portfolio)
-    setInvestorCount(investors?.length || 0)
-    setTotalDeposits(deposits)
-    setTotalProfits(profits)
-  }
+  const { data: positions } = await supabase
+    .from('portfolio_positions')
+    .select(`
+      *,
+      investors (
+        full_name
+      )
+    `)
 
   return (
-    <main className="p-8 text-white">
-      <h1 className="text-4xl font-bold mb-8">
-        Portfolio Dashboard
+    <main className="space-y-8">
+      <h1 className="text-4xl font-bold text-cyan-400">
+        Portfolio Positions
       </h1>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-zinc-900 rounded-2xl overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-zinc-800">
+            <tr>
+              <th className="p-4 text-left">
+                Investor
+              </th>
 
-        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
-          <p className="text-zinc-400">
-            Portfolio Value
-          </p>
+              <th className="p-4 text-left">
+                Asset
+              </th>
 
-          <p className="text-3xl font-bold">
-            ${portfolioValue.toLocaleString()}
-          </p>
-        </div>
+              <th className="p-4 text-left">
+                Quantity
+              </th>
 
-        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
-          <p className="text-zinc-400">
-            Investors
-          </p>
+              <th className="p-4 text-left">
+                Avg Cost
+              </th>
+            </tr>
+          </thead>
 
-          <p className="text-3xl font-bold">
-            {investorCount}
-          </p>
-        </div>
+          <tbody>
+            {positions?.map((position) => (
+              <tr
+                key={position.id}
+                className="border-t border-zinc-800"
+              >
+                <td className="p-4">
+                  {position.investors?.full_name}
+                </td>
 
-        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
-          <p className="text-zinc-400">
-            Total Deposits
-          </p>
+                <td className="p-4">
+                  {position.asset}
+                </td>
 
-          <p className="text-3xl font-bold">
-            ${totalDeposits.toLocaleString()}
-          </p>
-        </div>
+                <td className="p-4">
+                  {position.quantity}
+                </td>
 
-        <div className="bg-zinc-900 p-6 rounded-xl border border-zinc-800">
-          <p className="text-zinc-400">
-            Total Profits
-          </p>
-
-          <p className="text-3xl font-bold">
-            ${totalProfits.toLocaleString()}
-          </p>
-        </div>
-
-      </div>
-
-      <div className="grid lg:grid-cols-2 gap-6 mt-8">
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-          <h2 className="text-2xl font-bold mb-4">
-            AUM Growth
-          </h2>
-
-          <AUMChart />
-        </div>
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-          <h2 className="text-2xl font-bold mb-4">
-            Portfolio Allocation
-          </h2>
-
-          <AllocationChart />
-        </div>
-
+                <td className="p-4">
+                  ${position.average_cost}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </main>
   )

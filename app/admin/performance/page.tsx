@@ -1,68 +1,69 @@
 import { createClient } from '@/lib/supabase/server'
-import StatCard from '@/components/admin/StatCard'
 
-export default async function TradingPage() {
+export default async function PerformancePage() {
   const supabase = await createClient()
 
   const { data: positions } = await supabase
     .from('portfolio_positions')
-    .select(`
-      *,
-      investors (
-        full_name
-      )
-    `)
+    .select('*')
 
-  const totalExposure =
+  const totalValue =
     positions?.reduce(
-      (sum, position) =>
+      (sum, p) =>
         sum +
-        Number(position.quantity) *
-          Number(position.average_cost),
+        Number(p.quantity) *
+        Number(p.average_cost),
       0
     ) || 0
 
   return (
-    <main className="space-y-8 p-8 text-white">
+    <main className="space-y-8">
       <div>
         <h1 className="text-4xl font-bold text-cyan-400">
-          Trading Desk
+          Performance Dashboard
         </h1>
 
         <p className="text-zinc-400 mt-2">
-          Portfolio management and execution
+          Portfolio valuation and holdings
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-4">
-        <StatCard
-          title="Total Exposure"
-          value={`$${totalExposure.toLocaleString()}`}
-        />
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <div className="text-zinc-400">
+            Portfolio Value
+          </div>
 
-        <StatCard
-          title="Open Positions"
-          value={String(positions?.length || 0)}
-        />
+          <div className="text-4xl font-bold mt-2">
+            ${totalValue.toLocaleString()}
+          </div>
+        </div>
 
-        <StatCard
-          title="Assets Tracked"
-          value={String(
-            new Set(
-              positions?.map((p) => p.asset)
-            ).size || 0
-          )}
-        />
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <div className="text-zinc-400">
+            Positions
+          </div>
+
+          <div className="text-4xl font-bold mt-2">
+            {positions?.length || 0}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+          <div className="text-zinc-400">
+            Status
+          </div>
+
+          <div className="text-4xl font-bold mt-2 text-green-500">
+            Live
+          </div>
+        </div>
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead className="bg-zinc-800">
             <tr>
-              <th className="p-4 text-left">
-                Investor
-              </th>
-
               <th className="p-4 text-left">
                 Asset
               </th>
@@ -88,10 +89,6 @@ export default async function TradingPage() {
                 className="border-t border-zinc-800"
               >
                 <td className="p-4">
-                  {position.investors?.full_name}
-                </td>
-
-                <td className="p-4 font-bold">
                   {position.asset}
                 </td>
 
@@ -100,13 +97,12 @@ export default async function TradingPage() {
                 </td>
 
                 <td className="p-4">
-                  $
-                  {Number(
+                  ${Number(
                     position.average_cost
                   ).toLocaleString()}
                 </td>
 
-                <td className="p-4 text-cyan-400 font-bold">
+                <td className="p-4 font-bold">
                   $
                   {(
                     Number(position.quantity) *

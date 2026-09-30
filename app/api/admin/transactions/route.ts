@@ -1,6 +1,36 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export async function GET() {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('investor_transactions')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data || [])
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error',
+      },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = await createClient()
@@ -37,9 +67,7 @@ export async function POST(req: Request) {
         notes,
       })
 
-    if (txError) {
-      throw txError
-    }
+    if (txError) throw txError
 
     let balance = Number(investor.balance || 0)
     let invested = Number(investor.total_invested || 0)
@@ -75,9 +103,7 @@ export async function POST(req: Request) {
       })
       .eq('id', investor_id)
 
-    if (updateError) {
-      throw updateError
-    }
+    if (updateError) throw updateError
 
     return NextResponse.json({
       success: true,

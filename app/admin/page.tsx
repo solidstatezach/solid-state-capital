@@ -12,6 +12,7 @@ export default async function AdminPage() {
     { count: investorCount },
     { data: investors },
     { data: transactions },
+    { data: positions },
   ] = await Promise.all([
     supabase
       .from('investors')
@@ -31,6 +32,10 @@ export default async function AdminPage() {
         ascending: false,
       })
       .limit(10),
+
+    supabase
+      .from('portfolio_positions')
+      .select('*'),
   ])
 
   const totalAUM =
@@ -39,6 +44,29 @@ export default async function AdminPage() {
         sum + Number(investor.balance || 0),
       0
     ) || 0
+
+  const allocationMap: Record<
+    string,
+    number
+  > = {}
+
+  positions?.forEach((position) => {
+    const value =
+      Number(position.quantity) *
+      Number(position.average_cost)
+
+    allocationMap[position.asset] =
+      (allocationMap[position.asset] || 0) +
+      value
+  })
+
+  const allocationData =
+    Object.entries(allocationMap).map(
+      ([name, value]) => ({
+        name,
+        value,
+      })
+    )
 
   return (
     <main className="space-y-8">
@@ -65,7 +93,9 @@ export default async function AdminPage() {
 
         <StatCard
           title="Transactions"
-          value={String(transactions?.length || 0)}
+          value={String(
+            transactions?.length || 0
+          )}
         />
 
         <StatCard
@@ -74,7 +104,7 @@ export default async function AdminPage() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-5">
         <Link
           href="/admin/investors/new"
           className="bg-cyan-500 text-black rounded-2xl p-6 font-bold text-center"
@@ -102,6 +132,13 @@ export default async function AdminPage() {
         >
           Trading Panel
         </Link>
+
+        <Link
+          href="/admin/performance"
+          className="bg-blue-600 rounded-2xl p-6 font-bold text-center"
+        >
+          Performance
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -118,7 +155,9 @@ export default async function AdminPage() {
             Portfolio Allocation
           </h2>
 
-          <AllocationChart />
+          <AllocationChart
+            data={allocationData}
+          />
         </div>
       </div>
 
@@ -139,12 +178,16 @@ export default async function AdminPage() {
                 </div>
 
                 <div className="text-sm text-zinc-500">
-                  {tx.notes || 'No notes'}
+                  {tx.notes ||
+                    'No notes'}
                 </div>
               </div>
 
               <div className="font-bold">
-                ${Number(tx.amount).toLocaleString()}
+                $
+                {Number(
+                  tx.amount
+                ).toLocaleString()}
               </div>
             </div>
           ))}

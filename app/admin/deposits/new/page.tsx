@@ -47,7 +47,7 @@ export default function NewDepositPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          investor_id: investorId,
+          investorId: investorId,
           amount: Number(amount),
         }),
       }

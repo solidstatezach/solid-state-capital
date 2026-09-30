@@ -1,7 +1,4 @@
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import AUMChart from '@/components/admin/AUMChart'
-import AllocationChart from '@/components/admin/AllocationChart'
 
 export default async function InvestorPage({
   params,
@@ -22,130 +19,111 @@ export default async function InvestorPage({
     .from('investor_transactions')
     .select('*')
     .eq('investor_id', id)
-    .order('created_at', { ascending: false })
+    .order('created_at', {
+      ascending: false,
+    })
+
+  const { data: positions } = await supabase
+    .from('portfolio_positions')
+    .select('*')
+    .eq('investor_id', id)
 
   if (!investor) {
-    return <div>Investor not found</div>
+    return (
+      <main className="p-8">
+        Investor not found
+      </main>
+    )
   }
 
-  const totalDeposits =
-    transactions
-      ?.filter((t) => t.transaction_type === 'deposit')
-      .reduce((sum, t) => sum + Number(t.amount), 0) || 0
-
-  const totalWithdrawals =
-    transactions
-      ?.filter((t) => t.transaction_type === 'withdrawal')
-      .reduce((sum, t) => sum + Number(t.amount), 0) || 0
-
   return (
-    <main className="space-y-8">
+    <main className="space-y-8 p-8">
       <div>
         <h1 className="text-4xl font-bold text-cyan-400">
           {investor.full_name}
         </h1>
 
         <p className="text-zinc-400">
-          Investor Profile
+          {investor.email}
         </p>
-
-        <div className="flex gap-3 mt-4 flex-wrap">
-          <Link
-            href="/admin/deposits/new"
-            className="bg-green-600 px-4 py-2 rounded-lg"
-          >
-            New Deposit
-          </Link>
-
-          <Link
-            href="/admin/withdrawals/new"
-            className="bg-red-600 px-4 py-2 rounded-lg"
-          >
-            New Withdrawal
-          </Link>
-
-          <button className="bg-cyan-600 px-4 py-2 rounded-lg">
-            Add Profit
-          </button>
-
-          <button className="bg-yellow-600 px-4 py-2 rounded-lg">
-            Edit Investor
-          </button>
-        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">Balance</div>
-
-          <div className="text-3xl font-bold mt-2">
-            ${Number(investor.balance).toLocaleString()}
+      <div className="grid md:grid-cols-4 gap-4">
+        <div className="bg-zinc-900 p-6 rounded-2xl">
+          <div className="text-zinc-500">
+            Balance
           </div>
-        </div>
 
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">Total Invested</div>
-
-          <div className="text-3xl font-bold mt-2">
-            ${Number(
-              investor.total_invested
+          <div className="text-2xl font-bold">
+            $
+            {Number(
+              investor.balance || 0
             ).toLocaleString()}
           </div>
         </div>
 
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">Total Profit</div>
+        <div className="bg-zinc-900 p-6 rounded-2xl">
+          <div className="text-zinc-500">
+            Invested
+          </div>
 
-          <div className="text-3xl font-bold mt-2">
-            ${Number(
-              investor.total_profit
+          <div className="text-2xl font-bold">
+            $
+            {Number(
+              investor.total_invested || 0
             ).toLocaleString()}
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">
-            Lifetime Deposits
+        <div className="bg-zinc-900 p-6 rounded-2xl">
+          <div className="text-zinc-500">
+            Profit
           </div>
 
-          <div className="text-3xl font-bold mt-2">
-            ${totalDeposits.toLocaleString()}
-          </div>
-        </div>
-
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <div className="text-zinc-400">
-            Lifetime Withdrawals
-          </div>
-
-          <div className="text-3xl font-bold mt-2">
-            ${totalWithdrawals.toLocaleString()}
+          <div className="text-2xl font-bold">
+            $
+            {Number(
+              investor.total_profit || 0
+            ).toLocaleString()}
           </div>
         </div>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <h2 className="text-xl font-bold mb-4">
-            AUM Growth
-          </h2>
+        <div className="bg-zinc-900 p-6 rounded-2xl">
+          <div className="text-zinc-500">
+            Status
+          </div>
 
-          <AUMChart />
-        </div>
-
-        <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-          <h2 className="text-xl font-bold mb-4">
-            Portfolio Allocation
-          </h2>
-
-          <AllocationChart />
+          <div className="text-2xl font-bold">
+            {investor.status}
+          </div>
         </div>
       </div>
 
-      <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-6">
-        <h2 className="text-2xl font-bold mb-6">
+      <div className="bg-zinc-900 rounded-2xl p-6">
+        <h2 className="text-2xl font-bold mb-4">
+          Portfolio Holdings
+        </h2>
+
+        <div className="space-y-2">
+          {positions?.map((position) => (
+            <div
+              key={position.id}
+              className="flex justify-between"
+            >
+              <span>
+                {position.asset}
+              </span>
+
+              <span>
+                {position.quantity}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-zinc-900 rounded-2xl p-6">
+        <h2 className="text-2xl font-bold mb-4">
           Transaction History
         </h2>
 
@@ -153,28 +131,17 @@ export default async function InvestorPage({
           {transactions?.map((tx) => (
             <div
               key={tx.id}
-              className="flex justify-between border-b border-zinc-800 pb-3"
+              className="flex justify-between border-b border-zinc-800 pb-2"
             >
               <div>
-                <div className="font-medium capitalize">
-                  {tx.transaction_type}
-                </div>
-
-                <div className="text-sm text-zinc-500">
-                  {tx.notes || 'No notes'}
-                </div>
+                {tx.transaction_type}
               </div>
 
-              <div className="text-right">
-                <div className="font-bold">
-                  ${Number(tx.amount).toLocaleString()}
-                </div>
-
-                <div className="text-xs text-zinc-500">
-                  {new Date(
-                    tx.created_at
-                  ).toLocaleDateString()}
-                </div>
+              <div>
+                $
+                {Number(
+                  tx.amount
+                ).toLocaleString()}
               </div>
             </div>
           ))}
