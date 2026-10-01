@@ -24,3 +24,33 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+body {
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(34, 211, 238, 0.08),
+      transparent 40%
+    ),
+    #09090b;
+}
+
+.glass-card {
+  background: rgba(24, 24, 27, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+}
+
+.metric-glow {
+  text-shadow: 0 0 24px rgba(34, 211, 238, 0.35);
+}
+
+.panel-hover {
+  transition: all 0.3s ease;
+}
+
+.panel-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.12);
+}
