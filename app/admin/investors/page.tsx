@@ -1,13 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
-import InvestorList from '@/components/admin/InvestorList'
 
 export default async function InvestorsPage() {
   const supabase = await createClient()
 
-  const { data: investors } = await supabase
+  const { data: investors, error } = await supabase
     .from('investors')
     .select('*')
     .order('created_at', { ascending: false })
+
+  console.log('ERROR:', error)
+  console.log('INVESTORS:', investors)
 
   const totalBalance =
     investors?.reduce(
@@ -29,7 +31,17 @@ export default async function InvestorsPage() {
         </p>
       </div>
 
-      <InvestorList investors={investors || []} />
+      <div className="space-y-4">
+        {investors?.map((investor) => (
+          <div
+            key={investor.id}
+            className="p-4 rounded-lg bg-zinc-900"
+          >
+            <p>{investor.full_name}</p>
+            <p>{investor.email}</p>
+          </div>
+        ))}
+      </div>
     </main>
   )
 }
