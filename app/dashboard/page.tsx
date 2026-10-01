@@ -33,7 +33,7 @@ export default async function DashboardPage() {
 
 <div className="flex flex-wrap gap-3 mt-6">
   <Link href="/investor/transactions" className="px-5 py-3 rounded-xl bg-cyan-500 text-black font-bold">Deposit</Link>
-  <Link href="/investor/transactions" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Withdraw</Link>
+  <Link href="/investor/withdraw" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Withdraw</Link>
   <Link href="/investor/portfolio" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Portfolio</Link>
   <Link href="/investor/performance" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Performance</Link>
 </div>
