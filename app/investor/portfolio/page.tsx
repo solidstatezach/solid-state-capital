@@ -54,8 +54,8 @@ export default async function PortfolioPage() {
         </div>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-        <table className="w-full">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-x-auto">
+        <table className="min-w-[700px] w-full">
           <thead className="bg-zinc-800">
             <tr>
               <th className="text-left p-4">

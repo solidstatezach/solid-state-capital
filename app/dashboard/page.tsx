@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import StatCard from '@/components/admin/StatCard'
 import AUMChart from '@/components/admin/AUMChart'
@@ -21,51 +22,70 @@ export default async function DashboardPage() {
 
   return (
     <main className="p-8 text-white space-y-8">
-
       <div>
-        <h1 className="text-4xl font-bold text-cyan-400">
+        <h1 className="text-5xl font-black text-cyan-400">
           Investor Dashboard
         </h1>
 
         <p className="text-zinc-400 mt-2">
           Portfolio Overview
         </p>
+
+<div className="flex flex-wrap gap-3 mt-6">
+  <Link href="/investor/transactions" className="px-5 py-3 rounded-xl bg-cyan-500 text-black font-bold">Deposit</Link>
+  <Link href="/investor/transactions" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Withdraw</Link>
+  <Link href="/investor/portfolio" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Portfolio</Link>
+  <Link href="/investor/performance" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Performance</Link>
+</div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="glass-card p-8 rounded-3xl">
+        <p className="text-zinc-500 uppercase tracking-wider text-sm">
+          Portfolio Value
+        </p>
 
-        <StatCard
-          title="Current Balance"
-          value={`$${Number(
+        <h2 className="text-6xl font-black metric-glow mt-3">
+          $
+          {Number(
             investor?.balance || 0
-          ).toLocaleString()}`}
-        />
+          ).toLocaleString()}
+        </h2>
 
-        <StatCard
-          title="Total Invested"
-          value={`$${Number(
-            investor?.total_invested || 0
-          ).toLocaleString()}`}
-        />
+        <p className="text-green-400 mt-3">
+          Active Account
+        </p>
+      </div>
 
-        <StatCard
-          title="Total Profit"
-          value={`$${Number(
-            investor?.total_profit || 0
-          ).toLocaleString()}`}
-          valueClassName="text-green-400"
-        />
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="panel-hover">
+          <StatCard
+            title="Total Invested"
+            value={`$${Number(
+              investor?.total_invested || 0
+            ).toLocaleString()}`}
+          />
+        </div>
 
-        <StatCard
-          title="Account Status"
-          value="Active"
-        />
+        <div className="panel-hover">
+          <StatCard
+            title="Total Profit"
+            value={`$${Number(
+              investor?.total_profit || 0
+            ).toLocaleString()}`}
+            valueClassName="text-green-400"
+          />
+        </div>
 
+        <div className="panel-hover">
+          <StatCard
+            title="Account Status"
+            value="Active"
+          />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <div className="glass-card p-6">
           <h2 className="text-2xl font-bold mb-4">
             Portfolio Growth
           </h2>
@@ -73,7 +93,7 @@ export default async function DashboardPage() {
           <AUMChart />
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <div className="glass-card p-6">
           <h2 className="text-2xl font-bold mb-4">
             Allocation
           </h2>
@@ -89,16 +109,14 @@ export default async function DashboardPage() {
             ]}
           />
         </div>
-
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+      <div className="glass-card p-6">
         <h2 className="text-2xl font-bold mb-4">
           Recent Transactions
         </h2>
 
         <div className="space-y-3">
-
           {transactions?.map((tx) => (
             <div
               key={tx.id}
@@ -115,14 +133,15 @@ export default async function DashboardPage() {
               </div>
 
               <div className="font-bold">
-                ${Number(tx.amount).toLocaleString()}
+                $
+                {Number(
+                  tx.amount
+                ).toLocaleString()}
               </div>
             </div>
           ))}
-
         </div>
       </div>
-
     </main>
   )
 }

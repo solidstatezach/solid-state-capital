@@ -14,10 +14,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
+  console.log("LOGIN CLICKED")
     event.preventDefault()
     setError('')
     setLoading(true)
 
+  console.log(email)
+  console.log("attempting login")
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
