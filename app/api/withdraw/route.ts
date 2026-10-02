@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 
-export async function POST(req: Request) {
-  const formData = await req.formData()
+export async function POST(request: Request) {
+  const formData = await request.formData()
 
   const amount = Number(formData.get('amount'))
   const wallet_address = String(formData.get('wallet_address'))
@@ -18,10 +18,9 @@ export async function POST(req: Request) {
     })
 
   if (error) {
-    return NextResponse.json(error, { status: 500 })
+    console.error(error)
+    redirect('/investor/withdraw?error=1')
   }
 
-  return NextResponse.redirect(
-    new URL('/investor/withdraw', req.url)
-  )
+  redirect('/investor/withdraw?success=1')
 }
