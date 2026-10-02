@@ -1,4 +1,6 @@
+import MarketTicker from '@/components/investor/MarketTicker'
 import { createClient } from '@/lib/supabase/server'
+import Nav from '@/components/investor/Nav'
 
 export default async function TransactionsPage() {
   const supabase = await createClient()
@@ -10,6 +12,8 @@ export default async function TransactionsPage() {
 
   return (
     <main className="max-w-6xl mx-auto p-6 space-y-6">
+      <Nav />
+      <MarketTicker />
       <h1 className="text-4xl font-bold text-cyan-400">
         Transactions
       </h1>

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import StatCard from '@/components/admin/StatCard'
 import AUMChart from '@/components/admin/AUMChart'
 import AllocationChart from '@/components/admin/AllocationChart'
+import MarketTicker from '@/components/investor/MarketTicker'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,6 +27,9 @@ export default async function DashboardPage() {
         <h1 className="text-5xl font-black text-cyan-400">
           Investor Dashboard
         </h1>
+
+        <MarketTicker />
+
 
         <p className="text-zinc-400 mt-2">
           Portfolio Overview
