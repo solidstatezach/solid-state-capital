@@ -72,15 +72,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
             disabled={loading}
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
             className="w-full bg-black text-white p-3 rounded disabled:opacity-50"
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
           >
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
             {loading ? 'Signing in...' : 'Login'}
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
           </button>
 <Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
         </form>
