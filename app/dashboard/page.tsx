@@ -39,10 +39,6 @@ export default async function DashboardPage() {
   <Link href="/investor/transactions" className="px-5 py-3 rounded-xl bg-cyan-500 text-black font-bold">Deposit</Link>
   <Link href="/investor/withdraw" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Withdraw</Link>
   <Link href="/investor/portfolio" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Portfolio</Link>
-  <Link href="/investor/performance" className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">Performance</Link>
-</div>
-      </div>
-
       <div className="glass-card p-8 rounded-3xl">
         <p className="text-zinc-500 uppercase tracking-wider text-sm">
           Portfolio Value
