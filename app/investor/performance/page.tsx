@@ -5,15 +5,29 @@ import Nav from '@/components/investor/Nav'
 export default async function PerformancePage() {
   const supabase = await createClient()
 
-  const { data: investor } = await supabase
-    .from('investors')
+  const { data: positions } = await supabase
+    .from('portfolio_positions')
     .select('*')
-    .single()
 
-  const totalInvested = Number(investor?.total_invested || 0)
-  const totalProfit = Number(investor?.total_profit || 0)
+  const portfolioValue =
+    positions?.reduce(
+      (sum, p) =>
+        sum +
+        Number(p.quantity) *
+        Number(p.current_price || 0),
+      0
+    ) || 0
 
-  const portfolioValue = totalInvested + totalProfit
+  const totalInvested =
+    positions?.reduce(
+      (sum, p) =>
+        sum +
+        Number(p.quantity) *
+        Number(p.average_cost || 0),
+      0
+    ) || 0
+
+  const totalProfit = portfolioValue - totalInvested
 
   const roi =
     totalInvested > 0
@@ -30,7 +44,6 @@ export default async function PerformancePage() {
       </h1>
 
       <div className="grid gap-6 md:grid-cols-4">
-
         <div className="glass-card p-6">
           <div className="text-zinc-400">Portfolio Value</div>
           <div className="text-3xl font-bold">
@@ -58,7 +71,6 @@ export default async function PerformancePage() {
             {roi}%
           </div>
         </div>
-
       </div>
     </main>
   )
