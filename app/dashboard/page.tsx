@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
 import StatCard from '@/components/admin/StatCard'
 import AUMChart from '@/components/admin/AUMChart'
 import AllocationChart from '@/components/admin/AllocationChart'
@@ -8,13 +9,27 @@ import MarketTicker from '@/components/investor/MarketTicker'
 export default async function DashboardPage() {
   const supabase = await createClient()
 
+  const investor = await getCurrentInvestor()
+
+  if (!investor) {
+    return (
+      <main className="p-8 text-white">
+        <h1 className="text-3xl font-bold text-red-500">
+          Investor not found
+        </h1>
+      </main>
+    )
+  }
+
   const { data: positions } = await supabase
     .from('portfolio_positions')
     .select('*')
+    .eq('investor_id', investor.id)
 
   const { data: transactions } = await supabase
     .from('investor_transactions')
     .select('*')
+    .eq('investor_id', investor.id)
     .order('created_at', { ascending: false })
     .limit(10)
 
@@ -93,7 +108,7 @@ export default async function DashboardPage() {
         </h2>
 
         <p className="text-green-400 mt-3">
-          Active Account
+          {investor.full_name}
         </p>
       </div>
 
@@ -116,7 +131,7 @@ export default async function DashboardPage() {
         <div className="panel-hover">
           <StatCard
             title="Account Status"
-            value="Active"
+            value={investor.status || 'Active'}
           />
         </div>
       </div>
