@@ -7,6 +7,7 @@ import AllocationChart from '@/components/admin/AllocationChart'
 import StatCard from '@/components/admin/StatCard'
 
 export default async function AdminPage() {
+  await requireAdmin()
   const supabase = await createClient()
 
   const [
