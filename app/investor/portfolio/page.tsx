@@ -1,13 +1,28 @@
 import MarketTicker from '@/components/investor/MarketTicker'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
 import Nav from '@/components/investor/Nav'
 
 export default async function PortfolioPage() {
   const supabase = await createClient()
 
+  const investor = await getCurrentInvestor()
+
+  if (!investor) {
+    return (
+      <main className="p-6">
+        <Nav />
+        <h1 className="text-2xl font-bold text-red-500">
+          Investor not found
+        </h1>
+      </main>
+    )
+  }
+
   const { data: positions, error } = await supabase
     .from('portfolio_positions')
     .select('*')
+    .eq('investor_id', investor.id)
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -28,7 +43,7 @@ export default async function PortfolioPage() {
       (sum, p) =>
         sum +
         Number(p.quantity) *
-        Number(p.current_price || 0),
+          Number(p.current_price || 0),
       0
     ) || 0
 
@@ -97,13 +112,15 @@ export default async function PortfolioPage() {
                   </td>
 
                   <td className="p-4">
-                    ${Number(
+                    $
+                    {Number(
                       position.average_cost
                     ).toLocaleString()}
                   </td>
 
                   <td className="p-4">
-                    ${Number(
+                    $
+                    {Number(
                       position.current_price
                     ).toLocaleString()}
                   </td>
