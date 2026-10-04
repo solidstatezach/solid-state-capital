@@ -1,16 +1,36 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentInvestor } from "@/lib/supabase/currentInvestor";
 
 export default async function InvestorDashboard() {
   const supabase = await createClient();
 
-  const { data: investors } = await supabase
-    .from("investors")
-    .select("*")
-    .limit(1);
+  const investor = await getCurrentInvestor();
 
-  const investor = investors?.[0];
+  if (!investor) {
+    return (
+      <main className="space-y-8 p-6">
+        <h1 className="text-3xl font-bold text-red-500">
+          Investor not found
+        </h1>
+        <p className="text-zinc-400">
+          Your account is not linked to an investor profile.
+        </p>
+      </main>
+    );
+  }
 
-  const totalValue = Number(investor?.balance || 0);
+  const { count: activePositions } = await supabase
+    .from("portfolio_positions")
+    .select("id", { count: "exact", head: true })
+    .eq("investor_id", investor.id);
+
+  const totalValue = Number(investor.balance || 0);
+
+  const monthlyReturn = investor.total_invested
+    ? (Number(investor.total_profit || 0) /
+        Number(investor.total_invested)) *
+      100
+    : 0;
 
   return (
     <main className="space-y-8 p-6">
@@ -20,7 +40,7 @@ export default async function InvestorDashboard() {
         </h1>
 
         <p className="text-zinc-400 mt-2">
-          Welcome to Solid State Capital
+          Welcome, {investor.full_name || "Investor"}
         </p>
       </div>
 
@@ -37,11 +57,12 @@ export default async function InvestorDashboard() {
 
         <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
           <div className="text-zinc-500 text-sm">
-            Monthly Return
+            Return
           </div>
 
           <div className="text-3xl font-bold text-green-500 mt-2">
-            +8.2%
+            {monthlyReturn >= 0 ? "+" : ""}
+            {monthlyReturn.toFixed(1)}%
           </div>
         </div>
 
@@ -51,7 +72,7 @@ export default async function InvestorDashboard() {
           </div>
 
           <div className="text-3xl font-bold mt-2">
-            $15,250
+            ${Number(investor.balance || 0).toLocaleString()}
           </div>
         </div>
 
@@ -61,7 +82,7 @@ export default async function InvestorDashboard() {
           </div>
 
           <div className="text-3xl font-bold mt-2">
-            6
+            {activePositions ?? 0}
           </div>
         </div>
       </div>
