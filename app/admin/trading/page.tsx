@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import StatCard from '@/components/admin/StatCard'
 
 export default async function TradingPage() {
+  await requireAdmin()
   const supabase = await createClient()
 
   const { data: positions } = await supabase

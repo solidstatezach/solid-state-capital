@@ -2,6 +2,7 @@ import { requireAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function TransactionsPage() {
+  await requireAdmin()
   const supabase = await createClient()
 
   const { data: transactions } = await supabase
