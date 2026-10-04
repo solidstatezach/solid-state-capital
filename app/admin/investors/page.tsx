@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function InvestorsPage() {

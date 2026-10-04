@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
