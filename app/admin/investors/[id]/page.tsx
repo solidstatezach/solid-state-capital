@@ -6,6 +6,7 @@ export default async function InvestorPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  await requireAdmin()
   const { id } = await params
 
   const supabase = await createClient()
