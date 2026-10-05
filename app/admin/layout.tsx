@@ -7,13 +7,15 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-black text-white">
-      <AdminSidebar />
+    <div className="min-h-screen bg-black text-white lg:flex">
+      <div className="hidden lg:block">
+        <AdminSidebar />
+      </div>
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />
 
-        <main className="p-8 overflow-y-auto">
+        <main className="p-4 md:p-8 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
