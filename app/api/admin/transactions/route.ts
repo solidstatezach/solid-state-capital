@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       .from('investor_transactions')
       .insert({
         investor_id,
-        type,
+        transaction_type: type,
         amount: value,
         notes,
       })
