@@ -35,19 +35,19 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-md border rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-2">
+    <main className="min-h-screen bg-black flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-zinc-950 border border-cyan-500/30 rounded-2xl p-8 shadow-2xl">
+        <h1 className="text-4xl font-bold text-cyan-400 mb-3">
           Solid State Capital
         </h1>
 
-        <p className="text-gray-500 mb-6">
+        <p className="text-zinc-400 mb-8">
           Client Login
         </p>
 
         <form onSubmit={handleLogin}>
           <input
-            className="border p-3 w-full mb-3 rounded"
+            className="w-full bg-zinc-900 border border-zinc-700 p-4 rounded-xl text-white mb-4 focus:border-cyan-400 focus:outline-none"
             type="email"
             placeholder="Email"
             value={email}
@@ -56,7 +56,7 @@ export default function LoginPage() {
           />
 
           <input
-            className="border p-3 w-full mb-3 rounded"
+            className="w-full bg-zinc-900 border border-zinc-700 p-4 rounded-xl text-white mb-4 focus:border-cyan-400 focus:outline-none"
             type="password"
             placeholder="Password"
             value={password}
@@ -65,7 +65,7 @@ export default function LoginPage() {
           />
 
           {error && (
-            <p className="text-red-600 text-sm mb-3">
+            <p className="text-red-500 text-sm mb-3">
               {error}
             </p>
           )}
@@ -73,11 +73,16 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white p-3 rounded disabled:opacity-50"
+            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold p-4 rounded-xl disabled:opacity-50"
           >
             {loading ? 'Signing in...' : 'Login'}
           </button>
-<Link href="/signup" className="block text-center border border-zinc-700 rounded-lg py-3 mt-4">Create Account</Link>
+<Link
+            href="/signup"
+            className="block text-center border border-zinc-700 bg-zinc-900 rounded-xl py-4 mt-4 text-white hover:border-cyan-500"
+          >
+            Create Account
+          </Link>
         </form>
       </div>
     </main>
