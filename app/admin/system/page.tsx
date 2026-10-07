@@ -1,4 +1,8 @@
-export default function SystemPage() {
+import { requireAdmin } from '@/lib/supabase/admin'
+
+export default async function SystemPage() {
+  await requireAdmin()
+
   return (
     <main className="p-8 text-white">
       <h1 className="text-4xl font-bold">System Administration</h1>

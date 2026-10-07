@@ -29,7 +29,7 @@ Built on **Next.js 16 + React 19 + Supabase (Postgres + Auth + Row-Level Securit
 - Supabase email/password auth with an admin-role helper
 - Row-level security on every table — investors can only ever see their own data
 - Single migration (`supabase/migrations/20261006081500_fund_portal_schema.sql`)
-  creates all 7 tables the app uses, with constraints and indexes
+  creates all 5 tables the app uses, with constraints and indexes
 - Auto-profiles: a profile row is created on signup so the admin role system
   works out of the box
 

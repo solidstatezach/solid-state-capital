@@ -11,8 +11,7 @@
 --   profiles               one row per auth user (admin flag lives here)
 --   investors              fund investors, optionally linked to an auth user
 --   investor_transactions  deposits / withdrawals / profit / loss ledger
---   portfolio_positions    per-investor holdings (asset, qty, avg cost)
---   deposits / withdrawals simple aggregates read by the admin stats endpoint
+--   portfolio_positions    per-investor holdings (asset, qty, avg cost, price)
 --   withdrawal_requests    investor-submitted payout requests (pending review)
 -- ============================================================================
 
@@ -32,7 +31,7 @@ create table public.profiles (
 -- ── investors ───────────────────────────────────────────────────────────────
 create table public.investors (
   id             uuid primary key default gen_random_uuid(),
-  user_id        uuid references auth.users(id) on delete set null,
+  user_id        uuid unique references auth.users(id) on delete set null,
   full_name      text not null,
   email          text,
   balance        numeric not null default 0,
@@ -73,21 +72,6 @@ create table public.portfolio_positions (
 create index portfolio_positions_investor_id_idx
   on public.portfolio_positions (investor_id);
 
--- ── deposits / withdrawals (read by the admin stats endpoint) ───────────────
-create table public.deposits (
-  id          uuid primary key default gen_random_uuid(),
-  investor_id uuid references public.investors(id) on delete set null,
-  amount      numeric not null check (amount >= 0),
-  created_at  timestamptz not null default now()
-);
-
-create table public.withdrawals (
-  id          uuid primary key default gen_random_uuid(),
-  investor_id uuid references public.investors(id) on delete set null,
-  amount      numeric not null check (amount >= 0),
-  created_at  timestamptz not null default now()
-);
-
 -- ── withdrawal_requests ─────────────────────────────────────────────────────
 create table public.withdrawal_requests (
   id             uuid primary key default gen_random_uuid(),
@@ -122,9 +106,11 @@ create trigger portfolio_positions_touch_updated_at
   before update on public.portfolio_positions
   for each row execute function public.touch_updated_at();
 
--- ── auto-create a profile row on signup ─────────────────────────────────────
--- requireAdmin() looks up profiles.is_admin for the logged-in user, so without
--- this trigger nobody could ever become an admin through the app.
+-- ── auto-create profile + investor on signup ────────────────────────────────
+-- requireAdmin() looks up profiles.is_admin for the logged-in user, and the
+-- investor portal looks up investors by user_id, so both rows must exist for
+-- a new user to do anything. The investor starts as 'pending' until an admin
+-- funds or approves it.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -138,6 +124,16 @@ begin
     new.email
   )
   on conflict (id) do nothing;
+
+  insert into public.investors (user_id, full_name, email, status)
+  values (
+    new.id,
+    new.raw_user_meta_data ->> 'full_name',
+    new.email,
+    'pending'
+  )
+  on conflict (user_id) do nothing;
+
   return new;
 end;
 $$;
@@ -152,8 +148,6 @@ alter table public.profiles              enable row level security;
 alter table public.investors             enable row level security;
 alter table public.investor_transactions enable row level security;
 alter table public.portfolio_positions  enable row level security;
-alter table public.deposits              enable row level security;
-alter table public.withdrawals           enable row level security;
 alter table public.withdrawal_requests   enable row level security;
 
 -- Helper: true when the current JWT user is flagged as an admin.
@@ -222,22 +216,6 @@ create policy "Investors can view their own positions"
   );
 create policy "Admins can manage positions"
   on public.portfolio_positions for all to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
-
--- deposits / withdrawals: admin-only (back the stats endpoint)
-create policy "Admins can view deposits"
-  on public.deposits for select to authenticated
-  using (public.is_admin());
-create policy "Admins can manage deposits"
-  on public.deposits for all to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
-create policy "Admins can view withdrawals"
-  on public.withdrawals for select to authenticated
-  using (public.is_admin());
-create policy "Admins can manage withdrawals"
-  on public.withdrawals for all to authenticated
   using (public.is_admin())
   with check (public.is_admin());
 
