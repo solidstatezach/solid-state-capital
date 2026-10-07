@@ -1,0 +1,83 @@
+<!-- DRAFT - have a lawyer review before selling. Replace [BRACKETED] fields. -->
+
+# SOLID STATE CAPITAL — SOFTWARE LICENSE AGREEMENT
+
+Copyright (c) 2026 [YOUR FULL LEGAL NAME / ENTITY].
+All rights reserved.
+
+This license governs your use of the "Solid State Capital" fund-portal
+software ("Software"). By purchasing, downloading, or using the Software, you
+agree to these terms. The Software is sold in two tiers. The tier you purchased
+determines which grant applies.
+
+---
+
+## 1. DEFINITIONS
+
+- **Personal License** — a single-seat license for one individual, for one
+  fund or personal project.
+- **Commercial License** — a white-label license for use in commercial client
+  work or fund operations.
+- **Redistribute** — to sell, sublicense, share, or distribute the Software's
+  source code (modified or not) to any third party as a standalone product.
+
+---
+
+## 2. GRANT OF RIGHTS
+
+**Both tiers** receive:
+- Use the Software to run one fund portal instance (production) plus
+  development/staging instances.
+- Modify the source code for your own use.
+- Lifetime updates delivered through the original purchase channel.
+
+**Personal License — additional restriction:** you may NOT Redistribute the
+Software or any derivative of it, and you may NOT use it to build products
+for clients. Internal/single-fund use only.
+
+**Commercial License — additional grant:** you MAY rebrand and Redistribute
+the Software as part of a client deliverable or fund offering, including
+white-labeled deployments for third parties. You may NOT resell the raw
+source as a competing starter/template product.
+
+---
+
+## 3. RESTRICTIONS (both tiers)
+
+- No reselling the Software itself as a template, starter kit, or source-code
+  product (Commercial tier excepted for client deliverables as above).
+- No removing or altering copyright notices.
+- License keys/seats are non-transferable without written consent.
+
+## 4. OWNERSHIP
+
+The Software is licensed, not sold. [YOUR NAME/ENTITY] retains all
+intellectual property rights. Modifications you make for your own deployment
+are yours; they do not grant you rights to the underlying Software beyond
+this license.
+
+## 5. NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM OR DAMAGES.
+
+## 6. COMPLIANCE & DISCLAIMER
+
+The Software is a template for educational and demonstration purposes. It is
+not investment advice and does not move or custody funds. Operating a real
+fund may subject you to securities, broker-dealer, and money-transmission
+laws. You are solely responsible for legal compliance in your jurisdiction.
+
+## 7. TERMINATION
+
+This license terminates automatically if you breach its terms. On termination
+you must cease use and destroy copies in your possession.
+
+## 8. GOVERNING LAW
+
+[YOUR STATE/COUNTRY], without regard to conflict-of-law principles.
+
+---
+
+*Questions: [YOUR CONTACT EMAIL]*

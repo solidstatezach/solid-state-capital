@@ -9,32 +9,27 @@ export async function GET() {
       .from('investors')
       .select('*', { count: 'exact', head: true })
 
-    const { data: deposits } = await supabase
-      .from('deposits')
-      .select('amount')
+    // The `deposits` and `withdrawals` tables are never written by the app:
+    // every deposit/withdrawal is recorded in `investor_transactions` and
+    // rolled into `investors.balance` by the deposit/withdrawal/transaction
+    // routes. Aggregate the ledger instead, or AUM is always $0.
+    const { data: txs } = await supabase
+      .from('investor_transactions')
+      .select('amount, transaction_type')
 
-    const { data: withdrawals } = await supabase
-      .from('withdrawals')
-      .select('amount')
+    const sumBy = (txType: string) =>
+      txs
+        ?.filter((t) => t.transaction_type === txType)
+        .reduce((sum, row) => sum + Number(row.amount || 0), 0) || 0
+
+    const totalDeposits = sumBy('deposit')
+    const totalWithdrawals = sumBy('withdrawal')
 
     const { count: transactionCount } = await supabase
       .from('investor_transactions')
       .select('*', { count: 'exact', head: true })
 
-    const totalDeposits =
-      deposits?.reduce(
-        (sum, row) => sum + Number(row.amount || 0),
-        0
-      ) || 0
-
-    const totalWithdrawals =
-      withdrawals?.reduce(
-        (sum, row) => sum + Number(row.amount || 0),
-        0
-      ) || 0
-
-    const aum =
-      totalDeposits - totalWithdrawals
+    const aum = totalDeposits - totalWithdrawals
 
     return NextResponse.json({
       investors: investorCount || 0,
