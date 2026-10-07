@@ -66,6 +66,7 @@ create table public.portfolio_positions (
   asset        text not null,
   quantity     numeric not null default 0,
   average_cost numeric not null default 0,
+  current_price numeric not null default 0,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
