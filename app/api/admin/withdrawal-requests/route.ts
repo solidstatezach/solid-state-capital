@@ -50,7 +50,9 @@ export async function GET() {
 }
 
 // Approve or reject a pending request.
-// Approving records the withdrawal in the ledger and debits the investor.
+// Runs atomically inside a single Postgres transaction via
+// public.resolve_withdrawal_request, so double-clicks, two admins, or a
+// retried request can never pay out twice.
 export async function POST(req: Request) {
   const supabase = await getAdminClient()
 
@@ -70,103 +72,18 @@ export async function POST(req: Request) {
     )
   }
 
-  const { data: request, error: fetchError } = await supabase
-    .from('withdrawal_requests')
-    .select('*')
-    .eq('id', id)
-    .single()
+  // Single atomic call: pending check, balance lock, ledger entry, debit,
+  // and status change all happen inside one transaction. A second concurrent
+  // attempt fails with "Request is already approved/rejected".
+  const { error } = await supabase.rpc('resolve_withdrawal_request', {
+    request_id: id,
+    p_action: action,
+  })
 
-  if (fetchError || !request) {
+  if (error) {
     return NextResponse.json(
-      { error: 'Request not found' },
-      { status: 404 }
-    )
-  }
-
-  if (request.status !== 'pending') {
-    return NextResponse.json(
-      { error: `Request is already ${request.status}` },
+      { error: error.message },
       { status: 400 }
-    )
-  }
-
-  if (action === 'rejected') {
-    const { error } = await supabase
-      .from('withdrawal_requests')
-      .update({ status: 'rejected' })
-      .eq('id', id)
-
-    if (error) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({ success: true })
-  }
-
-  // approved: verify balance, record ledger entry, debit investor
-  const { data: investor, error: investorError } = await supabase
-    .from('investors')
-    .select('id, balance')
-    .eq('id', request.investor_id)
-    .single()
-
-  if (investorError || !investor) {
-    return NextResponse.json(
-      { error: 'Investor not found' },
-      { status: 404 }
-    )
-  }
-
-  const balance = Number(investor.balance || 0)
-  const amount = Number(request.amount)
-
-  if (balance < amount) {
-    return NextResponse.json(
-      { error: 'Insufficient investor balance' },
-      { status: 400 }
-    )
-  }
-
-  const { error: txError } = await supabase
-    .from('investor_transactions')
-    .insert({
-      investor_id: request.investor_id,
-      transaction_type: 'withdrawal',
-      amount,
-      notes: `Withdrawal request approved (wallet ${request.wallet_address})`,
-    })
-
-  if (txError) {
-    return NextResponse.json(
-      { error: txError.message },
-      { status: 500 }
-    )
-  }
-
-  const { error: updateError } = await supabase
-    .from('investors')
-    .update({ balance: balance - amount })
-    .eq('id', request.investor_id)
-
-  if (updateError) {
-    return NextResponse.json(
-      { error: updateError.message },
-      { status: 500 }
-    )
-  }
-
-  const { error: statusError } = await supabase
-    .from('withdrawal_requests')
-    .update({ status: 'approved' })
-    .eq('id', id)
-
-  if (statusError) {
-    return NextResponse.json(
-      { error: statusError.message },
-      { status: 500 }
     )
   }
 
