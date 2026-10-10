@@ -10,8 +10,19 @@ export default async function InvestorsPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  console.log('ERROR:', error)
-  console.log('INVESTORS:', investors)
+  if (error) {
+    return (
+      <main className="p-8 text-white">
+        <h1 className="text-4xl font-bold mb-6">
+          Investors
+        </h1>
+
+        <p className="text-red-400">
+          Failed to load investors. Please try again.
+        </p>
+      </main>
+    )
+  }
 
   const totalBalance =
     investors?.reduce(

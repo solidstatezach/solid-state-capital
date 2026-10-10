@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/supabase/audit";
 
 export async function POST(req: Request) {
   try {
@@ -65,6 +66,13 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
+    await logAudit(supabase, {
+      action: "transaction.deposit",
+      entity: "investor_transactions",
+      after: { investor_id: investorId, amount: Number(amount), notes },
+      notes: `Deposit of $${Number(amount)} for investor ${investorId}`,
+    });
 
     return NextResponse.json({
       success: true,

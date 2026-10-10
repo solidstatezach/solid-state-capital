@@ -6,7 +6,8 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:accounting": "rm -rf tmp-test-build && npx tsc lib/portfolio.ts --outDir tmp-test-build --module nodenext --target es2022 --moduleResolution nodenext && node scripts/test-accounting.mjs; rm -rf tmp-test-build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",

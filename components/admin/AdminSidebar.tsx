@@ -7,6 +7,8 @@ import {
   TrendingUp,
   Shield,
   Banknote,
+  PiggyBank,
+  LineChart,
 } from 'lucide-react'
 
 const links = [
@@ -15,7 +17,9 @@ const links = [
   { href: '/admin/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { href: '/admin/portfolios', label: 'Portfolios', icon: Wallet },
   { href: '/admin/withdrawals', label: 'Withdrawals', icon: Banknote },
+  { href: '/admin/deposits/new', label: 'Deposits', icon: PiggyBank },
   { href: '/admin/trading', label: 'Trading', icon: TrendingUp },
+  { href: '/admin/performance', label: 'Performance', icon: LineChart },
   { href: '/admin/system', label: 'System', icon: Shield },
 ]
 

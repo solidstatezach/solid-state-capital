@@ -20,7 +20,7 @@ export default async function PortfoliosPage() {
         Portfolio Positions
       </h1>
 
-      <div className="bg-zinc-900 rounded-2xl overflow-hidden">
+      <div className="bg-zinc-900 rounded-2xl overflow-x-auto">
         <table className="w-full">
           <thead className="bg-zinc-800">
             <tr>

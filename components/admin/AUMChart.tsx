@@ -9,21 +9,30 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
-const data = [
-  { month: 'Jan', value: 150000 },
-  { month: 'Feb', value: 220000 },
-  { month: 'Mar', value: 350000 },
-  { month: 'Apr', value: 520000 },
-  { month: 'May', value: 780000 },
-  { month: 'Jun', value: 1250000 },
-]
+export type AUMPoint = {
+  label: string
+  value: number
+}
 
-export default function AUMChart() {
+export default function AUMChart({
+  data,
+}: {
+  data: AUMPoint[]
+}) {
+  if (!data || data.length === 0) {
+    return (
+      <p className="text-zinc-500 p-4">
+        No valuation history yet. Record a snapshot to start
+        building the track record.
+      </p>
+    )
+  }
+
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data}>
-          <XAxis dataKey="month" />
+          <XAxis dataKey="label" />
           <YAxis />
           <Tooltip />
           <Area

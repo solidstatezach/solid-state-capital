@@ -19,6 +19,10 @@ export default function SignupPage() {
   async function handleSignup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
+    setLoading(true)
+    setError('')
+    setMessage('')
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -28,6 +32,8 @@ export default function SignupPage() {
         },
       },
     })
+
+    setLoading(false)
 
     if (error) {
       setError(error.message)

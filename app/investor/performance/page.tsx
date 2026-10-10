@@ -1,10 +1,25 @@
+import { redirect } from 'next/navigation'
 import MarketTicker from '@/components/investor/MarketTicker'
+import AUMChart from '@/components/admin/AUMChart'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
+import {
+  summarizePositions,
+  totalAccountValue,
+  formatMoney,
+} from '@/lib/portfolio'
 import Nav from '@/components/investor/Nav'
 
 export default async function PerformancePage() {
   const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
 
   const investor = await getCurrentInvestor()
 
@@ -14,6 +29,11 @@ export default async function PerformancePage() {
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
+
+        <p className="text-zinc-400 mt-2">
+          Your account is not linked to an investor profile yet.
+          Please contact your administrator.
+        </p>
       </main>
     )
   }
@@ -23,33 +43,31 @@ export default async function PerformancePage() {
     .select('*')
     .eq('investor_id', investor.id)
 
-  const portfolioValue =
-    positions?.reduce(
-      (sum, p) =>
-        sum +
-        Number(p.quantity) *
-          Number(p.current_price || 0),
-      0
-    ) || 0
+  const { data: snapshots } = await supabase
+    .from('portfolio_snapshots')
+    .select('created_at, total_value')
+    .eq('investor_id', investor.id)
+    .order('created_at', { ascending: true })
+    .limit(365)
 
-  const totalInvested =
-    positions?.reduce(
-      (sum, p) =>
-        sum +
-        Number(p.quantity) *
-          Number(p.average_cost || 0),
-      0
-    ) || 0
+  const summary = summarizePositions(positions)
+  const accountValue = totalAccountValue(
+    investor.balance,
+    positions
+  )
 
-  const totalProfit = portfolioValue - totalInvested
-
-  const roi =
-    totalInvested > 0
-      ? (
-          (totalProfit / totalInvested) *
-          100
-        ).toFixed(2)
+  const unrealizedRoi =
+    summary.cost > 0
+      ? ((summary.unrealized / summary.cost) * 100).toFixed(2)
       : '0.00'
+
+  const chartData = (snapshots || []).map((s) => ({
+    label: new Date(s.created_at).toLocaleDateString(
+      undefined,
+      { month: 'short', day: 'numeric' }
+    ),
+    value: Number(s.total_value) || 0,
+  }))
 
   return (
     <main className="max-w-6xl mx-auto p-6 space-y-6">
@@ -64,45 +82,57 @@ export default async function PerformancePage() {
       <div className="grid gap-6 md:grid-cols-4">
         <div className="glass-card p-6">
           <div className="text-zinc-400">
-            Portfolio Value
+            Total Account Value
           </div>
           <div className="text-3xl font-bold">
-            ${portfolioValue.toLocaleString()}
+            {formatMoney(accountValue)}
+          </div>
+          <div className="text-xs text-zinc-600 mt-1">
+            Cash + positions
           </div>
         </div>
 
         <div className="glass-card p-6">
           <div className="text-zinc-400">
-            Total Invested
+            Cost Basis
           </div>
           <div className="text-3xl font-bold">
-            ${totalInvested.toLocaleString()}
+            {formatMoney(summary.cost)}
           </div>
         </div>
 
         <div className="glass-card p-6">
           <div className="text-zinc-400">
-            Total Profit
+            Unrealized P/L
           </div>
           <div
             className={`text-3xl font-bold ${
-              totalProfit >= 0
+              summary.unrealized >= 0
                 ? 'text-green-400'
                 : 'text-red-400'
             }`}
           >
-            ${totalProfit.toLocaleString()}
+            {summary.unrealized >= 0 ? '+' : ''}
+            {formatMoney(summary.unrealized)}
           </div>
         </div>
 
         <div className="glass-card p-6">
           <div className="text-zinc-400">
-            ROI
+            Unrealized ROI
           </div>
           <div className="text-3xl font-bold text-cyan-400">
-            {roi}%
+            {unrealizedRoi}%
           </div>
         </div>
+      </div>
+
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">
+          Account History
+        </h2>
+
+        <AUMChart data={chartData} />
       </div>
     </main>
   )

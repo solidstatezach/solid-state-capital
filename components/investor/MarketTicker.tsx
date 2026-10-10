@@ -10,42 +10,54 @@ type Coin = {
 
 export default function MarketTicker() {
   const [coins, setCoins] = useState<Coin[]>([])
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     const load = async () => {
-      const res = await fetch(
-        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,chainlink,ripple&vs_currencies=usd&include_24hr_change=true'
-      )
+      try {
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,chainlink,ripple&vs_currencies=usd&include_24hr_change=true'
+        )
 
-      const data = await res.json()
+        if (!res.ok) throw new Error('ticker unavailable')
 
-      setCoins([
-        {
-          symbol: 'BTC',
-          price: data.bitcoin.usd,
-          change: data.bitcoin.usd_24h_change,
-        },
-        {
-          symbol: 'ETH',
-          price: data.ethereum.usd,
-          change: data.ethereum.usd_24h_change,
-        },
-        {
-          symbol: 'SOL',
-          price: data.solana.usd,
-          change: data.solana.usd_24h_change,
-        },
-        {
-          symbol: 'LINK',
-          price: data.chainlink.usd,
-          change: data.chainlink.usd_24h_change,
-        },
-        {
-          symbol: 'XRP',
-          price: data.ripple.usd,
-          change: data.ripple.usd_24h_change,
-        },
-      ])
+        const data = await res.json()
+
+        if (!data?.bitcoin?.usd) throw new Error('bad ticker data')
+
+        setCoins([
+          {
+            symbol: 'BTC',
+            price: data.bitcoin.usd,
+            change: data.bitcoin.usd_24h_change,
+          },
+          {
+            symbol: 'ETH',
+            price: data.ethereum.usd,
+            change: data.ethereum.usd_24h_change,
+          },
+          {
+            symbol: 'SOL',
+            price: data.solana.usd,
+            change: data.solana.usd_24h_change,
+          },
+          {
+            symbol: 'LINK',
+            price: data.chainlink.usd,
+            change: data.chainlink.usd_24h_change,
+          },
+          {
+            symbol: 'XRP',
+            price: data.ripple.usd,
+            change: data.ripple.usd_24h_change,
+          },
+        ])
+        setFailed(false)
+      } catch {
+        // Market data is decorative context, never load-bearing:
+        // fail silent and hide the ticker instead of crashing the page.
+        setFailed(true)
+      }
     }
 
     load()
@@ -53,6 +65,10 @@ export default function MarketTicker() {
 
     return () => clearInterval(interval)
   }, [])
+
+  if (failed || coins.length === 0) {
+    return null
+  }
 
   return (
     <div className="overflow-hidden border-b border-zinc-800 bg-zinc-950 py-2">

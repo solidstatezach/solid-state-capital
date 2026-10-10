@@ -12,12 +12,21 @@ export default async function AdminPage() {
 
   const [
     { count: investorCount },
+    { count: transactionCount },
     { data: investors },
     { data: transactions },
     { data: positions },
+    { data: snapshots },
   ] = await Promise.all([
     supabase
       .from('investors')
+      .select('*', {
+        count: 'exact',
+        head: true,
+      }),
+
+    supabase
+      .from('investor_transactions')
       .select('*', {
         count: 'exact',
         head: true,
@@ -38,14 +47,54 @@ export default async function AdminPage() {
     supabase
       .from('portfolio_positions')
       .select('*'),
+
+    supabase
+      .from('portfolio_snapshots')
+      .select('created_at, total_value')
+      .order('created_at', { ascending: true })
+      .limit(365),
   ])
 
-  const totalAUM =
+  const cashTotal =
     investors?.reduce(
       (sum, investor) =>
         sum + Number(investor.balance || 0),
       0
     ) || 0
+
+  const positionsValue =
+    positions?.reduce(
+      (sum, position) =>
+        sum +
+        Number(position.quantity) *
+          Number(position.current_price || 0),
+      0
+    ) || 0
+
+  // AUM = cash across all investors + positions at current market price.
+  const totalAUM = cashTotal + positionsValue
+
+  // Aggregate daily snapshots across investors for the AUM chart.
+  const aumByDay = new Map<string, number>()
+  for (const s of snapshots || []) {
+    const day = new Date(s.created_at)
+      .toISOString()
+      .slice(0, 10)
+    aumByDay.set(
+      day,
+      (aumByDay.get(day) || 0) +
+        Number(s.total_value || 0)
+    )
+  }
+  const aumChartData = [...aumByDay.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : 1))
+    .map(([day, value]) => ({
+      label: new Date(day + 'T12:00:00').toLocaleDateString(
+        undefined,
+        { month: 'short', day: 'numeric' }
+      ),
+      value,
+    }))
 
   const allocationMap: Record<
     string,
@@ -55,7 +104,7 @@ export default async function AdminPage() {
   positions?.forEach((position) => {
     const value =
       Number(position.quantity) *
-      Number(position.average_cost)
+      Number(position.current_price || 0)
 
     allocationMap[position.asset] =
       (allocationMap[position.asset] || 0) +
@@ -96,13 +145,15 @@ export default async function AdminPage() {
         <StatCard
           title="Transactions"
           value={String(
-            transactions?.length || 0
+            transactionCount || 0
           )}
         />
 
         <StatCard
-          title="Status"
-          value="Online"
+          title="Open Positions"
+          value={String(
+            positions?.length || 0
+          )}
         />
       </div>
 
@@ -149,7 +200,7 @@ export default async function AdminPage() {
             AUM Growth
           </h2>
 
-          <AUMChart />
+          <AUMChart data={aumChartData} />
         </div>
 
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">

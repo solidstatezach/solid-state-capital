@@ -1,6 +1,12 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
+import {
+  summarizePositions,
+  totalAccountValue,
+  formatMoney,
+} from '@/lib/portfolio'
 import StatCard from '@/components/admin/StatCard'
 import AUMChart from '@/components/admin/AUMChart'
 import AllocationChart from '@/components/admin/AllocationChart'
@@ -8,6 +14,14 @@ import MarketTicker from '@/components/investor/MarketTicker'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
 
   const investor = await getCurrentInvestor()
 
@@ -17,6 +31,11 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
+
+        <p className="text-zinc-400 mt-2">
+          Your account is not linked to an investor profile yet.
+          Please contact your administrator.
+        </p>
       </main>
     )
   }
@@ -33,25 +52,26 @@ export default async function DashboardPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
-  const portfolioValue =
-    positions?.reduce(
-      (sum, p) =>
-        sum +
-        Number(p.quantity) *
-        Number(p.current_price || 0),
-      0
-    ) || 0
+  const { data: snapshots } = await supabase
+    .from('portfolio_snapshots')
+    .select('created_at, total_value')
+    .eq('investor_id', investor.id)
+    .order('created_at', { ascending: true })
+    .limit(365)
 
-  const totalInvested =
-    positions?.reduce(
-      (sum, p) =>
-        sum +
-        Number(p.quantity) *
-        Number(p.average_cost || 0),
-      0
-    ) || 0
+  const summary = summarizePositions(positions)
+  const accountValue = totalAccountValue(
+    investor.balance,
+    positions
+  )
 
-  const totalProfit = portfolioValue - totalInvested
+  const chartData = (snapshots || []).map((s) => ({
+    label: new Date(s.created_at).toLocaleDateString(
+      undefined,
+      { month: 'short', day: 'numeric' }
+    ),
+    value: Number(s.total_value) || 0,
+  }))
 
   const allocationData =
     positions?.map((p) => ({
@@ -79,7 +99,7 @@ export default async function DashboardPage() {
             href="/investor/transactions"
             className="px-5 py-3 rounded-xl bg-cyan-500 text-black font-bold"
           >
-            Deposit
+            Transactions
           </Link>
 
           <Link
@@ -100,31 +120,39 @@ export default async function DashboardPage() {
 
       <div className="glass-card p-8 rounded-3xl">
         <p className="text-zinc-500 uppercase tracking-wider text-sm">
-          Portfolio Value
+          Total Account Value
         </p>
 
         <h2 className="text-6xl font-black metric-glow mt-3">
-          ${portfolioValue.toLocaleString()}
+          {formatMoney(accountValue)}
         </h2>
 
-        <p className="text-green-400 mt-3">
-          {investor.full_name}
+        <p className="text-zinc-400 mt-3">
+          {investor.full_name} · Cash{' '}
+          {formatMoney(investor.balance)} + Positions{' '}
+          {formatMoney(summary.value)}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="panel-hover">
           <StatCard
-            title="Total Invested"
-            value={`$${totalInvested.toLocaleString()}`}
+            title="Cost Basis"
+            value={formatMoney(summary.cost)}
           />
         </div>
 
         <div className="panel-hover">
           <StatCard
-            title="Total Profit"
-            value={`$${totalProfit.toLocaleString()}`}
-            valueClassName="text-green-400"
+            title="Unrealized P/L"
+            value={`${summary.unrealized >= 0 ? '+' : ''}${formatMoney(
+              summary.unrealized
+            )}`}
+            valueClassName={
+              summary.unrealized >= 0
+                ? 'text-green-400'
+                : 'text-red-400'
+            }
           />
         </div>
 
@@ -139,10 +167,10 @@ export default async function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="glass-card p-6">
           <h2 className="text-2xl font-bold mb-4">
-            Portfolio Growth
+            Account History
           </h2>
 
-          <AUMChart />
+          <AUMChart data={chartData} />
         </div>
 
         <AllocationChart data={allocationData} />
@@ -153,28 +181,34 @@ export default async function DashboardPage() {
           Recent Transactions
         </h2>
 
-        <div className="space-y-3">
-          {transactions?.map((tx) => (
-            <div
-              key={tx.id}
-              className="flex justify-between border-b border-zinc-800 pb-3"
-            >
-              <div>
-                <div className="capitalize font-medium">
-                  {tx.transaction_type}
+        {transactions && transactions.length > 0 ? (
+          <div className="space-y-3">
+            {transactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex justify-between border-b border-zinc-800 pb-3"
+              >
+                <div>
+                  <div className="capitalize font-medium">
+                    {tx.transaction_type}
+                  </div>
+
+                  <div className="text-sm text-zinc-500">
+                    {tx.notes || 'No notes'}
+                  </div>
                 </div>
 
-                <div className="text-sm text-zinc-500">
-                  {tx.notes || 'No notes'}
+                <div className="font-bold">
+                  {formatMoney(tx.amount)}
                 </div>
               </div>
-
-              <div className="font-bold">
-                ${Number(tx.amount).toLocaleString()}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-zinc-500">
+            No transactions yet.
+          </p>
+        )}
       </div>
     </main>
   )

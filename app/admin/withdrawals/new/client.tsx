@@ -2,12 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-type Investor = {
-  id: string
-  name: string
-  email: string
-}
-
 type WithdrawalRequest = {
   id: string
   amount: number
@@ -21,26 +15,10 @@ type WithdrawalRequest = {
 }
 
 export default function WithdrawalsClient() {
-  const [investors, setInvestors] = useState<Investor[]>([])
-  const [investorId, setInvestorId] = useState('')
-  const [amount, setAmount] = useState('')
-  const [status, setStatus] = useState('')
-  const [requests, setRequests] = useState<WithdrawalRequest[]>([])
+  const [requests, setRequests] = useState<
+    WithdrawalRequest[]
+  >([])
   const [actionMsg, setActionMsg] = useState('')
-
-  async function loadInvestors() {
-    const res = await fetch('/api/admin/investors')
-
-    if (!res.ok) return
-
-    const data = await res.json()
-
-    setInvestors(data)
-
-    if (data.length > 0) {
-      setInvestorId(data[0].id)
-    }
-  }
 
   async function loadRequests() {
     const res = await fetch('/api/admin/withdrawal-requests')
@@ -51,34 +29,8 @@ export default function WithdrawalsClient() {
   }
 
   useEffect(() => {
-    loadInvestors()
     loadRequests()
   }, [])
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    setStatus('Saving...')
-
-    const res = await fetch('/api/admin/withdrawals', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        investorId,
-        amount: Number(amount),
-      }),
-    })
-
-    if (res.ok) {
-      setStatus('Withdrawal recorded')
-      setAmount('')
-    } else {
-      const error = await res.json()
-      setStatus(error.error || 'Failed')
-    }
-  }
 
   async function handleAction(
     id: string,
@@ -220,53 +172,6 @@ export default function WithdrawalsClient() {
             </div>
           </div>
         )}
-      </section>
-
-      <section className="max-w-xl">
-        <h1 className="text-3xl font-bold mb-6">
-          Record Withdrawal
-        </h1>
-
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4 bg-zinc-900 p-6 rounded-xl"
-        >
-          <select
-            value={investorId}
-            onChange={(e) =>
-              setInvestorId(e.target.value)
-            }
-            className="w-full p-3 rounded bg-zinc-800"
-          >
-            {investors.map((investor) => (
-              <option
-                key={investor.id}
-                value={investor.id}
-              >
-                {investor.name} ({investor.email})
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) =>
-              setAmount(e.target.value)
-            }
-            placeholder="Amount"
-            className="w-full p-3 rounded bg-zinc-800"
-          />
-
-          <button
-            type="submit"
-            className="bg-red-500 px-4 py-2 rounded font-bold"
-          >
-            Record Withdrawal
-          </button>
-
-          <div>{status}</div>
-        </form>
       </section>
     </main>
   )

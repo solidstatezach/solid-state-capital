@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logAudit } from '@/lib/supabase/audit'
 
 export async function GET() {
   const supabase = await createClient()
@@ -33,14 +34,17 @@ export async function POST(req: Request) {
     average_cost,
   } = await req.json()
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('portfolio_positions')
     .insert({
       investor_id,
       asset,
       quantity,
       average_cost,
+      current_price: average_cost,
     })
+    .select()
+    .single()
 
   if (error) {
     return NextResponse.json(
@@ -48,6 +52,13 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
+
+  await logAudit(supabase, {
+    action: 'position.create',
+    entity: 'portfolio_positions',
+    entity_id: data?.id,
+    after: data,
+  })
 
   return NextResponse.json({
     success: true,
