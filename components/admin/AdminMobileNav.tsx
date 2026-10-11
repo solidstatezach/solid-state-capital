@@ -13,9 +13,9 @@ export const ADMIN_LINKS: NavLink[] = [
   { href: '/admin/investors', label: 'Investors' },
   { href: '/admin/transactions', label: 'Transactions' },
   { href: '/admin/portfolios', label: 'Portfolios' },
-  { href: '/admin/trading', label: 'Trading' },
+  { href: '/admin/withdrawals', label: 'Withdrawals' },
   { href: '/admin/deposits/new', label: 'Deposits' },
-  { href: '/admin/withdrawals/new', label: 'Withdrawals' },
+  { href: '/admin/trading', label: 'Trading' },
   { href: '/admin/performance', label: 'Performance' },
 ]
 
