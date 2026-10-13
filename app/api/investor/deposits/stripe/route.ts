@@ -62,6 +62,9 @@ export async function POST(req: Request) {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      // Deposits are capital contributions, not taxable sales — opt out of
+      // Stripe's Managed Payments (which would require a product tax code).
+      managed_payments: { enabled: false },
       customer_email: investor.email ?? undefined,
       line_items: [
         {
