@@ -34,6 +34,10 @@ export default function Nav() {
         Withdraw
       </Link>
 
+      <Link href="/investor/deposit" className={tabClass('/investor/deposit')}>
+        Deposit
+      </Link>
+
       <div className="ml-auto">
         <SignOutButton variant="tab" />
       </div>
