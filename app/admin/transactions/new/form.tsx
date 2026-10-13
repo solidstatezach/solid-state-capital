@@ -134,7 +134,7 @@ export default function NewTransactionPage() {
 
         <button
           type="submit"
-          className="bg-green-600 px-6 py-3 rounded-lg font-bold"
+          className="btn-primary"
         >
           Save Transaction
         </button>

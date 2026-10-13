@@ -116,7 +116,7 @@ export default function NewPositionPage() {
         />
 
         <button
-          className="bg-cyan-500 text-black px-4 py-2 rounded font-bold"
+          className="btn-primary"
         >
           Add Position
         </button>

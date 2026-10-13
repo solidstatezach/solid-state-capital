@@ -1,6 +1,4 @@
 import { redirect } from 'next/navigation'
-import Nav from '@/components/investor/Nav'
-import MarketTicker from '@/components/investor/MarketTicker'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
 import { formatMoney } from '@/lib/portfolio'
@@ -51,9 +49,9 @@ export default async function WithdrawPage({
     .limit(20)
 
   return (
-    <main className="max-w-4xl mx-auto p-6 space-y-6">
-      <Nav />
-      <MarketTicker />
+    <main className="max-w-4xl mx-auto space-y-6">
+      
+      
 
       <h1 className="text-4xl font-bold text-cyan-400">
         Withdraw Funds
@@ -104,7 +102,7 @@ export default async function WithdrawPage({
 
         <button
           type="submit"
-          className="px-4 py-2 rounded bg-cyan-600 font-bold"
+          className="btn-primary"
         >
           Submit Withdrawal
         </button>

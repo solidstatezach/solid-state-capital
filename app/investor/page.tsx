@@ -21,7 +21,7 @@ export default async function InvestorDashboard() {
 
   if (!investor) {
     return (
-      <main className="space-y-8 p-6">
+      <main className="space-y-8">
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
@@ -59,7 +59,7 @@ export default async function InvestorDashboard() {
     : 0;
 
   return (
-    <main className="space-y-8 p-6">
+    <main className="space-y-8">
       <div>
         <h1 className="text-4xl font-bold text-cyan-400">
           Investor Dashboard

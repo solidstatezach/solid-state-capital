@@ -1,7 +1,5 @@
-import MarketTicker from '@/components/investor/MarketTicker'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
-import Nav from '@/components/investor/Nav'
 
 export default async function PortfolioPage() {
   const supabase = await createClient()
@@ -10,8 +8,8 @@ export default async function PortfolioPage() {
 
   if (!investor) {
     return (
-      <main className="p-6">
-        <Nav />
+      <main>
+        
         <h1 className="text-2xl font-bold text-red-500">
           Investor not found
         </h1>
@@ -27,9 +25,9 @@ export default async function PortfolioPage() {
 
   if (error) {
     return (
-      <main className="p-6">
-        <Nav />
-        <MarketTicker />
+      <main>
+        
+        
         <h1 className="text-2xl font-bold text-red-500">
           Error Loading Portfolio
         </h1>
@@ -49,7 +47,7 @@ export default async function PortfolioPage() {
 
   return (
     <main className="space-y-8">
-      <Nav />
+      
 
       <div>
         <h1 className="text-4xl font-bold text-cyan-400">
@@ -61,7 +59,7 @@ export default async function PortfolioPage() {
         </p>
       </div>
 
-      <MarketTicker />
+      
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
         <h2 className="text-xl font-bold mb-2">

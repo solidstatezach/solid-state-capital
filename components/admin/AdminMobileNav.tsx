@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import SignOutButton from '@/components/ui/SignOutButton'
 
 export type NavLink = {
   href: string
@@ -45,6 +46,7 @@ export default function AdminMobileNav() {
             </Link>
           )
         })}
+        <SignOutButton variant="tab" className="ml-1" />
       </div>
     </nav>
   )

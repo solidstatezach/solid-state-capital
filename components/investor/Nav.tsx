@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import SignOutButton from '@/components/ui/SignOutButton'
 
 export default function Nav() {
   const pathname = usePathname()
@@ -32,6 +33,10 @@ export default function Nav() {
       <Link href="/investor/withdraw" className={tabClass('/investor/withdraw')}>
         Withdraw
       </Link>
+
+      <div className="ml-auto">
+        <SignOutButton variant="tab" />
+      </div>
     </nav>
   )
 }

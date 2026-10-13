@@ -111,7 +111,7 @@ export default function NewDepositPage() {
 
         <button
           type="submit"
-          className="bg-cyan-500 px-4 py-2 rounded font-bold"
+          className="btn-primary"
         >
           Save Deposit
         </button>

@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation'
-import MarketTicker from '@/components/investor/MarketTicker'
 import AUMChart from '@/components/admin/AUMChart'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
@@ -8,7 +7,6 @@ import {
   totalAccountValue,
   formatMoney,
 } from '@/lib/portfolio'
-import Nav from '@/components/investor/Nav'
 
 export default async function PerformancePage() {
   const supabase = await createClient()
@@ -25,7 +23,7 @@ export default async function PerformancePage() {
 
   if (!investor) {
     return (
-      <main className="p-6 text-white">
+      <main className="text-white">
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
@@ -70,10 +68,10 @@ export default async function PerformancePage() {
   }))
 
   return (
-    <main className="max-w-6xl mx-auto p-6 space-y-6">
-      <Nav />
+    <main className="space-y-6">
+      
 
-      <MarketTicker />
+      
 
       <h1 className="text-4xl font-bold text-cyan-400">
         Performance

@@ -193,14 +193,14 @@ export default function PositionsTable({
                       <button
                         onClick={() => saveEdit(p.id)}
                         disabled={busy}
-                        className="px-3 py-1 rounded bg-green-600 text-white text-sm"
+                        className="btn-primary btn-sm"
                       >
                         Save
                       </button>
 
                       <button
                         onClick={() => setEditingId(null)}
-                        className="px-3 py-1 rounded bg-zinc-700 text-white text-sm"
+                        className="btn-secondary btn-sm"
                       >
                         Cancel
                       </button>
@@ -209,7 +209,7 @@ export default function PositionsTable({
                     <div className="flex gap-2">
                       <button
                         onClick={() => startEdit(p)}
-                        className="px-3 py-1 rounded bg-zinc-700 text-white text-sm"
+                        className="btn-secondary btn-sm"
                       >
                         Edit
                       </button>
@@ -217,7 +217,7 @@ export default function PositionsTable({
                       <button
                         onClick={() => remove(p.id, p.asset)}
                         disabled={busy}
-                        className="px-3 py-1 rounded bg-red-700 text-white text-sm"
+                        className="btn-danger btn-sm"
                       >
                         Delete
                       </button>

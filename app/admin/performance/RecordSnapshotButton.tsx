@@ -32,7 +32,7 @@ export default function RecordSnapshotButton() {
       <button
         onClick={record}
         disabled={loading}
-        className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold disabled:opacity-50"
+        className="btn-primary"
       >
         {loading ? 'Recording…' : 'Record Snapshot'}
       </button>

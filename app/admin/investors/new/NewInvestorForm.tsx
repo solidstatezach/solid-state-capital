@@ -86,7 +86,7 @@ export default function NewInvestorForm() {
 
         <button
           type="submit"
-          className="bg-purple-600 px-6 py-3 rounded-lg font-bold"
+          className="btn-primary"
         >
           Create Investor
         </button>

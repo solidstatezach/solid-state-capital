@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
@@ -11,6 +10,7 @@ import StatCard from '@/components/admin/StatCard'
 import AUMChart from '@/components/admin/AUMChart'
 import AllocationChart from '@/components/admin/AllocationChart'
 import MarketTicker from '@/components/investor/MarketTicker'
+import Nav from '@/components/investor/Nav'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -94,27 +94,8 @@ export default async function DashboardPage() {
           Portfolio Overview
         </p>
 
-        <div className="flex flex-wrap gap-3 mt-6">
-          <Link
-            href="/investor/transactions"
-            className="px-5 py-3 rounded-xl bg-cyan-500 text-black font-bold"
-          >
-            Transactions
-          </Link>
-
-          <Link
-            href="/investor/withdraw"
-            className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700"
-          >
-            Withdraw
-          </Link>
-
-          <Link
-            href="/investor/portfolio"
-            className="px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700"
-          >
-            Portfolio
-          </Link>
+        <div className="mt-6">
+          <Nav />
         </div>
       </div>
 

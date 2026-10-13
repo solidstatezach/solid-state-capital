@@ -81,7 +81,7 @@ export default function SignupPage() {
           {message && <p className="text-green-600 mb-2">{message}</p>}
 
           <button
-            className="w-full bg-black text-white p-3 rounded"
+            className="btn-secondary w-full"
             disabled={loading}
           >
             Create Account

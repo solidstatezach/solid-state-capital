@@ -1,7 +1,5 @@
-import MarketTicker from '@/components/investor/MarketTicker'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
-import Nav from '@/components/investor/Nav'
 
 export default async function TransactionsPage() {
   const supabase = await createClient()
@@ -10,8 +8,8 @@ export default async function TransactionsPage() {
 
   if (!investor) {
     return (
-      <main className="max-w-6xl mx-auto p-6">
-        <Nav />
+      <main>
+        
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
@@ -26,9 +24,9 @@ export default async function TransactionsPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <main className="max-w-6xl mx-auto p-6 space-y-6">
-      <Nav />
-      <MarketTicker />
+    <main className="space-y-6">
+      
+      
 
       <h1 className="text-4xl font-bold text-cyan-400">
         Transactions

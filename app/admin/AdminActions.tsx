@@ -44,7 +44,7 @@ export default function AdminActions({
       <button
         onClick={() => updateBalance(100)}
         disabled={loading}
-        className="px-4 py-2 rounded bg-green-600 text-white"
+        className="btn-primary btn-sm"
       >
         +$100
       </button>
@@ -52,7 +52,7 @@ export default function AdminActions({
       <button
         onClick={() => updateBalance(1000)}
         disabled={loading}
-        className="px-4 py-2 rounded bg-green-700 text-white"
+        className="btn-primary btn-sm"
       >
         +$1000
       </button>
@@ -60,7 +60,7 @@ export default function AdminActions({
       <button
         onClick={() => updateBalance(-100)}
         disabled={loading}
-        className="px-4 py-2 rounded bg-red-600 text-white"
+        className="btn-danger btn-sm"
       >
         -$100
       </button>
@@ -68,7 +68,7 @@ export default function AdminActions({
       <button
         onClick={() => updateBalance(-1000)}
         disabled={loading}
-        className="px-4 py-2 rounded bg-red-700 text-white"
+        className="btn-danger btn-sm"
       >
         -$1000
       </button>

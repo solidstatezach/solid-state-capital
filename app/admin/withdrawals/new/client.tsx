@@ -122,7 +122,7 @@ export default function WithdrawalsClient() {
                     onClick={() =>
                       handleAction(r.id, 'approved')
                     }
-                    className="bg-green-600 px-4 py-2 rounded font-bold"
+                    className="btn-primary btn-sm"
                   >
                     Approve
                   </button>
@@ -131,7 +131,7 @@ export default function WithdrawalsClient() {
                     onClick={() =>
                       handleAction(r.id, 'rejected')
                     }
-                    className="bg-zinc-700 px-4 py-2 rounded font-bold"
+                    className="btn-secondary btn-sm"
                   >
                     Reject
                   </button>

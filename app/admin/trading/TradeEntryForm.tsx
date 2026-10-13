@@ -160,7 +160,7 @@ export default function TradeEntryForm({
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold disabled:opacity-50"
+            className="btn-primary"
           >
             {loading ? 'Executing…' : 'Execute Trade'}
           </button>
