@@ -13,6 +13,9 @@ export default function NewDepositPage() {
   const [investorId, setInvestorId] = useState('')
   const [amount, setAmount] = useState('')
   const [status, setStatus] = useState('')
+  const [stripeUrl, setStripeUrl] = useState('')
+  const [stripeStatus, setStripeStatus] = useState('')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     async function loadInvestors() {
@@ -58,6 +61,44 @@ export default function NewDepositPage() {
       setAmount('')
     } else {
       setStatus('Failed')
+    }
+  }
+
+  async function handleStripeLink() {
+    setStripeStatus('Creating payment link...')
+    setStripeUrl('')
+    setCopied(false)
+
+    const res = await fetch(
+      '/api/admin/deposits/stripe',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          investorId: investorId,
+          amount: Number(amount),
+        }),
+      }
+    )
+
+    const data = await res.json()
+
+    if (res.ok && data.url) {
+      setStripeUrl(data.url)
+      setStripeStatus('Send this link to the investor — their balance credits automatically after they pay.')
+    } else {
+      setStripeStatus(data.error ?? 'Failed to create payment link')
+    }
+  }
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(stripeUrl)
+      setCopied(true)
+    } catch {
+      setCopied(false)
     }
   }
 
@@ -118,6 +159,45 @@ export default function NewDepositPage() {
 
         <div>{status}</div>
       </form>
+
+      <section className="mt-6 space-y-4 bg-zinc-900 p-6 rounded-xl">
+        <h2 className="text-xl font-bold">
+          Collect by card via Stripe
+        </h2>
+
+        <p className="text-sm text-zinc-400">
+          Creates a Stripe payment link for the investor and amount above.
+          Their balance credits automatically once they pay.
+        </p>
+
+        <button
+          type="button"
+          onClick={handleStripeLink}
+          className="btn-secondary"
+        >
+          Create Stripe payment link
+        </button>
+
+        {stripeUrl && (
+          <div className="flex gap-2">
+            <input
+              readOnly
+              value={stripeUrl}
+              className="w-full p-3 rounded bg-zinc-800 text-sm"
+            />
+
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="btn-ghost whitespace-nowrap"
+            >
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        )}
+
+        <div>{stripeStatus}</div>
+      </section>
     </main>
   )
 }
