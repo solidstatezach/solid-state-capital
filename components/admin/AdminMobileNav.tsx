@@ -11,6 +11,7 @@ export type NavLink = {
 
 export const ADMIN_LINKS: NavLink[] = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/investor', label: 'Investor View' },
   { href: '/admin/investors', label: 'Investors' },
   { href: '/admin/transactions', label: 'Transactions' },
   { href: '/admin/portfolios', label: 'Portfolios' },
@@ -18,6 +19,7 @@ export const ADMIN_LINKS: NavLink[] = [
   { href: '/admin/deposits/new', label: 'Deposits' },
   { href: '/admin/trading', label: 'Trading' },
   { href: '/admin/performance', label: 'Performance' },
+  { href: '/admin/system', label: 'System' },
 ]
 
 export default function AdminMobileNav() {

@@ -83,9 +83,9 @@ export default async function InvestorDashboard() {
     })) || []
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold text-cyan-400">
+        <h1 className="text-3xl md:text-4xl font-bold text-cyan-400">
           Investor Dashboard
         </h1>
 
@@ -94,12 +94,12 @@ export default async function InvestorDashboard() {
         </p>
       </div>
 
-      <div className="glass-card p-8 rounded-3xl">
+      <div className="card">
         <p className="text-zinc-500 uppercase tracking-wider text-sm">
           Total Account Value
         </p>
 
-        <h2 className="text-6xl font-black metric-glow mt-3">
+        <h2 className="text-5xl md:text-6xl font-bold tracking-tight tabular-nums mt-3">
           {formatMoney(accountValue)}
         </h2>
 
@@ -111,14 +111,14 @@ export default async function InvestorDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="panel-hover">
+        <div>
           <StatCard
             title="Cost Basis"
             value={formatMoney(summary.cost)}
           />
         </div>
 
-        <div className="panel-hover">
+        <div>
           <StatCard
             title="Unrealized P/L"
             value={`${summary.unrealized >= 0 ? '+' : ''}${formatMoney(
@@ -132,7 +132,7 @@ export default async function InvestorDashboard() {
           />
         </div>
 
-        <div className="panel-hover">
+        <div>
           <StatCard
             title="Account Status"
             value={investor.status || 'Active'}
@@ -141,8 +141,8 @@ export default async function InvestorDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="glass-card p-6">
-          <h2 className="text-2xl font-bold mb-4">
+        <div className="card">
+          <h2 className="text-lg font-semibold mb-4">
             Account History
           </h2>
 
@@ -152,8 +152,8 @@ export default async function InvestorDashboard() {
         <AllocationChart data={allocationData} />
       </div>
 
-      <div className="glass-card p-6">
-        <h2 className="text-2xl font-bold mb-4">
+      <div className="card">
+        <h2 className="text-lg font-semibold mb-4">
           Recent Transactions
         </h2>
 

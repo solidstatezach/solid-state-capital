@@ -42,8 +42,8 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-black flex items-center justify-center p-6">
-      <div className="w-full max-w-md bg-zinc-950 border border-cyan-500/30 rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-4xl font-bold text-cyan-400 mb-3">
+      <div className="w-full max-w-md card p-8 shadow-2xl">
+        <h1 className="text-3xl font-bold text-cyan-400 mb-3">
           Solid State Capital
         </h1>
 

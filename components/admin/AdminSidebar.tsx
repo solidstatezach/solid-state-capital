@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
+  Eye,
   Users,
   ArrowLeftRight,
   Wallet,
@@ -17,6 +18,7 @@ import SignOutButton from '@/components/ui/SignOutButton'
 
 const links = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/investor', label: 'Investor View', icon: Eye },
   { href: '/admin/investors', label: 'Investors', icon: Users },
   { href: '/admin/transactions', label: 'Transactions', icon: ArrowLeftRight },
   { href: '/admin/portfolios', label: 'Portfolios', icon: Wallet },

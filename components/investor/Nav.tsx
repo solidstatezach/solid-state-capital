@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import SignOutButton from '@/components/ui/SignOutButton'
 
-export default function Nav() {
+export default function Nav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
 
   const tabClass = (href: string) =>
@@ -13,7 +13,9 @@ export default function Nav() {
       : 'px-4 py-2 rounded-xl bg-zinc-800 text-white hover:bg-zinc-700'
 
   return (
-    <nav className="flex flex-wrap gap-3 mb-6">
+    // Desktop top tabs. On mobile the bottom nav owns navigation,
+    // so this row stays hidden there instead of wrapping into 3 rows.
+    <nav className="hidden md:flex flex-wrap gap-3 mb-6">
       <Link href="/investor" className={tabClass('/investor')}>
         Dashboard
       </Link>
@@ -37,6 +39,12 @@ export default function Nav() {
       <Link href="/investor/deposit" className={tabClass('/investor/deposit')}>
         Deposit
       </Link>
+
+      {isAdmin && (
+        <Link href="/admin" className={tabClass('/admin')}>
+          Admin
+        </Link>
+      )}
 
       <div className="ml-auto">
         <SignOutButton variant="tab" />
