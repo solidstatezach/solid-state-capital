@@ -14,7 +14,7 @@ export default function Nav() {
 
   return (
     <nav className="flex flex-wrap gap-3 mb-6">
-      <Link href="/dashboard" className={tabClass('/dashboard')}>
+      <Link href="/investor" className={tabClass('/investor')}>
         Dashboard
       </Link>
 

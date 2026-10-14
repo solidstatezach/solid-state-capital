@@ -25,7 +25,10 @@ export default function DepositForm() {
       if (res.ok && data.url) {
         window.location.href = data.url
       } else {
-        setStatus(data.error ?? 'Could not start the deposit')
+        // Never show raw API errors to the user — one human line here,
+        // full detail in the console for debugging.
+        console.error('Deposit checkout failed:', data.error)
+        setStatus("Couldn't start checkout — please try again.")
         setBusy(false)
       }
     } catch {

@@ -1,23 +1,30 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentInvestor } from "@/lib/supabase/currentInvestor";
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { getCurrentInvestor } from '@/lib/supabase/currentInvestor'
 import {
+  summarizePositions,
   totalAccountValue,
   formatMoney,
-} from "@/lib/portfolio";
+} from '@/lib/portfolio'
+import StatCard from '@/components/admin/StatCard'
+import AUMChart from '@/components/admin/AUMChart'
+import AllocationChart from '@/components/admin/AllocationChart'
 
+// THE investor dashboard. /dashboard redirects here so there is exactly
+// one dashboard — one set of numbers, one layout, one place to maintain.
+// (Nav + MarketTicker come from the investor layout.)
 export default async function InvestorDashboard() {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/login");
+    redirect('/login')
   }
 
-  const investor = await getCurrentInvestor();
+  const investor = await getCurrentInvestor()
 
   if (!investor) {
     return (
@@ -25,38 +32,55 @@ export default async function InvestorDashboard() {
         <h1 className="text-3xl font-bold text-red-500">
           Investor not found
         </h1>
+
         <p className="text-zinc-400">
           Your account is not linked to an investor profile yet.
           Please contact your administrator.
         </p>
       </main>
-    );
+    )
   }
 
   const { data: positions } = await supabase
-    .from("portfolio_positions")
-    .select("quantity, average_cost, current_price")
-    .eq("investor_id", investor.id);
+    .from('portfolio_positions')
+    .select('*')
+    .eq('investor_id', investor.id)
 
-  const { count: activePositions } = await supabase
-    .from("portfolio_positions")
-    .select("id", { count: "exact", head: true })
-    .eq("investor_id", investor.id);
+  const { data: transactions } = await supabase
+    .from('investor_transactions')
+    .select('*')
+    .eq('investor_id', investor.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
 
-  // Total Value = cash + positions at current price (same definition
-  // as every other page — see lib/portfolio.ts).
-  const totalValue = totalAccountValue(
+  const { data: snapshots } = await supabase
+    .from('portfolio_snapshots')
+    .select('created_at, total_value')
+    .eq('investor_id', investor.id)
+    .order('created_at', { ascending: true })
+    .limit(365)
+
+  const summary = summarizePositions(positions)
+  const accountValue = totalAccountValue(
     investor.balance,
     positions
-  );
+  )
 
-  // Realized return: booked P/L (trades + manual profit/loss entries)
-  // relative to total cash ever invested. Excludes unrealized gains.
-  const realizedReturn = investor.total_invested
-    ? (Number(investor.total_profit || 0) /
-        Number(investor.total_invested)) *
-      100
-    : 0;
+  const chartData = (snapshots || []).map((s) => ({
+    label: new Date(s.created_at).toLocaleDateString(
+      undefined,
+      { month: 'short', day: 'numeric' }
+    ),
+    value: Number(s.total_value) || 0,
+  }))
+
+  const allocationData =
+    positions?.map((p) => ({
+      name: p.asset,
+      value:
+        Number(p.quantity) *
+        Number(p.current_price || 0),
+    })) || []
 
   return (
     <main className="space-y-8">
@@ -66,66 +90,102 @@ export default async function InvestorDashboard() {
         </h1>
 
         <p className="text-zinc-400 mt-2">
-          Welcome, {investor.full_name || "Investor"}
+          Portfolio Overview
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-4">
-        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-          <div className="text-zinc-500 text-sm">
-            Total Value
-          </div>
+      <div className="glass-card p-8 rounded-3xl">
+        <p className="text-zinc-500 uppercase tracking-wider text-sm">
+          Total Account Value
+        </p>
 
-          <div className="text-3xl font-bold mt-2">
-            {formatMoney(totalValue)}
-          </div>
+        <h2 className="text-6xl font-black metric-glow mt-3">
+          {formatMoney(accountValue)}
+        </h2>
 
-          <div className="text-xs text-zinc-600 mt-1">
-            Cash + positions
-          </div>
+        <p className="text-zinc-400 mt-3">
+          {investor.full_name} · Cash{' '}
+          {formatMoney(investor.balance)} + Positions{' '}
+          {formatMoney(summary.value)}
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="panel-hover">
+          <StatCard
+            title="Cost Basis"
+            value={formatMoney(summary.cost)}
+          />
         </div>
 
-        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-          <div className="text-zinc-500 text-sm">
-            Realized Return
-          </div>
-
-          <div
-            className={`text-3xl font-bold mt-2 ${
-              realizedReturn >= 0
-                ? "text-green-500"
-                : "text-red-500"
-            }`}
-          >
-            {realizedReturn >= 0 ? "+" : ""}
-            {realizedReturn.toFixed(1)}%
-          </div>
-
-          <div className="text-xs text-zinc-600 mt-1">
-            Booked P/L vs invested
-          </div>
+        <div className="panel-hover">
+          <StatCard
+            title="Unrealized P/L"
+            value={`${summary.unrealized >= 0 ? '+' : ''}${formatMoney(
+              summary.unrealized
+            )}`}
+            valueClassName={
+              summary.unrealized >= 0
+                ? 'text-green-400'
+                : 'text-red-400'
+            }
+          />
         </div>
 
-        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-          <div className="text-zinc-500 text-sm">
-            Cash Balance
-          </div>
-
-          <div className="text-3xl font-bold mt-2">
-            {formatMoney(investor.balance)}
-          </div>
-        </div>
-
-        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800">
-          <div className="text-zinc-500 text-sm">
-            Active Positions
-          </div>
-
-          <div className="text-3xl font-bold mt-2">
-            {activePositions ?? 0}
-          </div>
+        <div className="panel-hover">
+          <StatCard
+            title="Account Status"
+            value={investor.status || 'Active'}
+          />
         </div>
       </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="glass-card p-6">
+          <h2 className="text-2xl font-bold mb-4">
+            Account History
+          </h2>
+
+          <AUMChart data={chartData} />
+        </div>
+
+        <AllocationChart data={allocationData} />
+      </div>
+
+      <div className="glass-card p-6">
+        <h2 className="text-2xl font-bold mb-4">
+          Recent Transactions
+        </h2>
+
+        {transactions && transactions.length > 0 ? (
+          <div className="space-y-3">
+            {transactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="flex justify-between border-b border-zinc-800 pb-3"
+              >
+                <div>
+                  <div className="capitalize font-medium">
+                    {tx.transaction_type}
+                  </div>
+
+                  <div className="text-sm text-zinc-500">
+                    {tx.notes || 'No notes'}
+                  </div>
+                </div>
+
+                <div className="font-bold">
+                  {formatMoney(tx.amount)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-zinc-500">
+            No transactions yet.
+          </p>
+        )}
+      </div>
     </main>
-  );
+  )
 }

@@ -25,12 +25,18 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setError(error.message)
+      // Friendly message on screen, raw detail in the console.
+      console.error('Login failed:', error.message)
+      setError(
+        error.message === 'Invalid login credentials'
+          ? 'Invalid email or password.'
+          : "Couldn't sign in — please try again."
+      )
       setLoading(false)
       return
     }
 
-    router.push('/dashboard')
+    router.push('/investor')
     router.refresh()
   }
 
@@ -79,7 +85,7 @@ export default function LoginPage() {
           </button>
 <Link
             href="/signup"
-            className="block text-center border border-zinc-700 bg-zinc-900 rounded-xl py-4 mt-4 text-white hover:border-cyan-500"
+            className="btn-secondary w-full mt-4"
           >
             Create Account
           </Link>

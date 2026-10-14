@@ -89,7 +89,10 @@ export default function NewDepositPage() {
       setStripeUrl(data.url)
       setStripeStatus('Send this link to the investor — their balance credits automatically after they pay.')
     } else {
-      setStripeStatus(data.error ?? 'Failed to create payment link')
+      // Never show raw API errors to the user — one human line here,
+      // full detail in the console for debugging.
+      console.error('Stripe link creation failed:', data.error)
+      setStripeStatus('Could not create the payment link — please try again.')
     }
   }
 
